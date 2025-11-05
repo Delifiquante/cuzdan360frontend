@@ -69,6 +69,9 @@ function Auth({ className, ...props }: React.ComponentProps<"div">) {
     setState((prev) => ({ ...prev, view }));
   }, []);
 
+  
+  
+  
   return (
     <div
       data-slot="auth"
@@ -225,17 +228,54 @@ function AuthSignIn({ onForgotPassword, onSignUp }: AuthSignInProps) {
     defaultValues: { email: "", password: "" },
   });
 
-  const onSubmit = async (data: SignInFormValues) => {
-    setFormState((prev) => ({ ...prev, isLoading: true, error: null }));
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate API call
-      setFormState((prev) => ({ ...prev, error: "Geçersiz e-posta veya şifre" }));
-    } catch {
-      setFormState((prev) => ({ ...prev, error: "Beklenmeyen bir hata oluştu" }));
-    } finally {
-      setFormState((prev) => ({ ...prev, isLoading: false }));
-    }
-  };
+
+    const onSubmit = async (data: SignInFormValues) => {
+        setFormState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+        // Adım 1'de tanımladığımız URL'i al
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+        try {
+            // 1.5 saniyelik sahte beklemeyi kaldır
+            // await new Promise((resolve) => setTimeout(resolve, 1500)); 
+
+            // Backend API'sine fetch isteği yap (Adım 3'te eklediğimiz yeni endpoint'e)
+            const response = await fetch(`${apiBaseUrl}/api/Auth/login-email`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: data.email,
+                    password: data.password,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                // Backend'den gelen hata mesajını göster
+                setFormState((prev) => ({ ...prev, error: result.message || "Bir hata oluştu" }));
+            } else {
+                // Başarılı giriş
+                console.log("Giriş başarılı:", result);
+                if (result.token) {
+                    // Token'ı localStorage'a kaydet ve kullanıcıyı dashboard'a yönlendir
+                    localStorage.setItem('authToken', result.token);
+                    // window.location.href = '/dashboard'; // Dashboard'a yönlendir
+                    alert('Giriş başarılı! Token: ' + result.token);
+                } else if (result.requiresOtp) {
+                    // OTP gerekiyorsa kullanıcıyı bilgilendir
+                    alert(result.message);
+                    // Burada OTP giriş ekranına yönlendirme yapabilirsin
+                }
+            }
+        } catch (err) {
+            setFormState((prev) => ({ ...prev, error: "Sunucuya bağlanılamadı. Lütfen tekrar deneyin." }));
+        } finally {
+            setFormState((prev) => ({ ...prev, isLoading: false }));
+        }
+    };
 
   return (
     <motion.div
@@ -357,18 +397,45 @@ function AuthSignUp({ onSignIn }: AuthSignUpProps) {
 
   const terms = watch("terms");
 
-  const onSubmit = async (data: SignUpFormValues) => {
-    setFormState((prev) => ({ ...prev, isLoading: true, error: null }));
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate API call
-      setFormState((prev) => ({ ...prev, error: "E-posta zaten kayıtlı" }));
-    } catch {
-      setFormState((prev) => ({ ...prev, error: "Beklenmeyen bir hata oluştu" }));
-    } finally {
-      setFormState((prev) => ({ ...prev, isLoading: false }));
-    }
-  };
+// eternalhittman/cuzdan360frontend/EternalHittMan-cuzdan360frontend-5b8e7809eb927e952bf260a048ed11a2baa2eaba/src/components/ui/auth-form-1.tsx
 
+    const onSubmit = async (data: SignUpFormValues) => {
+        setFormState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+        try {
+            // Sahte beklemeyi kaldır
+            // await new Promise((resolve) => setTimeout(resolve, 1500)); 
+
+            const response = await fetch(`${apiBaseUrl}/api/Auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    // Backend modeli 'Username' bekliyor, 'name' değil
+                    username: data.name,
+                    email: data.email,
+                    password: data.password,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                setFormState((prev) => ({ ...prev, error: result.message || "Kayıt sırasında bir hata oluştu" }));
+            } else {
+                // Başarılı kayıt
+                alert(result.message || 'Kayıt başarılı! Lütfen giriş yapın.');
+                onSignIn(); // Kullanıcıyı giriş ekranına yönlendir
+            }
+        } catch (err) {
+            setFormState((prev) => ({ ...prev, error: "Sunucuya bağlanılamadı. Lütfen tekrar deneyin." }));
+        } finally {
+            setFormState((prev) => ({ ...prev, isLoading: false }));
+        }
+    };
   return (
     <motion.div
       data-slot="auth-sign-up"

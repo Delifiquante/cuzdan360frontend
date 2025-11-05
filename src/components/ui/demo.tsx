@@ -8,10 +8,7 @@ export default function Example() {
             <h1 className="text-4xl font-bold text-left mt-4">
                 Sizden Haber Almayı Çok İsteriz.
             </h1>
-            <p className="text-left mt-4">
-                Veya manuel olarak şuradan ulaşın{" "}
-                <a href="mailto:akemalturgut@yahoo.com" className="text-[#68a146] hover:underline">akemalturgut@yahoo.com</a>
-            </p>
+
             <div className="grid md:grid-cols-3 mt-16">
                 <div>
                     <svg className="text-[#68a146] bg-[#68a146]/20 p-2.5 aspect-square rounded-full size-10" width="24"

@@ -9,11 +9,9 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-// import { transactions } from "@/lib/data"; // 👈 Statik veriyi kaldır
-import { Transaction } from "@/lib/types"; // 👈 Türü import et
+import { Transaction, TransactionType } from "@/lib/types"; // 👈 TransactionType import edildi
 import { cn } from "@/lib/utils";
 
-// 👈 Prop olarak 'transactions' al
 interface TransactionsTableProps {
     transactions: Transaction[];
 }
@@ -22,45 +20,75 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
     const formatCurrency = (value: number) =>
         new Intl.NumberFormat('tr-TR', {
             style: 'currency',
-            currency: 'TRY',
+            currency: 'TRY', // 👈 TODO: Bunu dinamik hale getirebilirsin (transaction.assetType.code)
         }).format(value);
 
-    // 👈 Eğer hiç işlem yoksa bir mesaj göster
-    if (transactions.length === 0) {
-        return <p className="text-center text-muted-foreground">Henüz bir işlem eklenmemiş.</p>;
-    }
+    // 👈 Tarih formatlama fonksiyonu eklendi
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('tr-TR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        });
+    };
 
     return (
-        <div className="overflow-x-auto">
+        // 👈 Tablonun etrafına bir kenarlık ekliyoruz
+        <div className="overflow-x-auto rounded-lg border">
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Açıklama</TableHead>
+                        <TableHead>Açıklama / Kaynak</TableHead>
                         <TableHead>Tarih</TableHead>
                         <TableHead>Kategori</TableHead>
                         <TableHead className="text-right">Tutar</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {/* 👈 Prop'tan gelen 'transactions' verisini kullan */}
-                    {transactions.map((transaction) => (
-                        <TableRow key={transaction.id}>
-                            <TableCell className="font-medium">{transaction.description}</TableCell>
-                            <TableCell className="text-muted-foreground">{transaction.date}</TableCell>
-                            <TableCell>
-                                <Badge variant="outline">{transaction.category}</Badge>
-                            </TableCell>
+                    {/* ✅ Kontrolü tablonun içine taşıdık */}
+                    {transactions.length > 0 ? (
+                        transactions.map((transaction) => (
+                            <TableRow key={transaction.transactionId}>
+                                {/* 👈 Backend verisine göre güncellendi */}
+                                <TableCell className="font-medium">
+                                    {/* 👈 'title' kullanıldı */}
+                                    <div>{transaction.title || "İsimsiz İşlem"}</div>
+                                    <div className="text-xs text-muted-foreground">
+                                        {/* 👈 İlişkili verilerin (nested) null olup olmadığını kontrol et */}
+                                        {transaction.source?.sourceName} ({transaction.assetType?.code})
+                                    </div>
+                                </TableCell>
+                                <TableCell className="text-muted-foreground">
+                                    {formatDate(transaction.transactionDate)}
+                                </TableCell>
+                                <TableCell>
+                                    <Badge variant="outline">{transaction.category?.name}</Badge>
+                                </TableCell>
+                                <TableCell
+                                    className={cn(
+                                        "text-right font-medium",
+                                        // 👈 'transactionType' enum'u kullanıldı
+                                        transaction.transactionType === TransactionType.Income
+                                            ? "text-primary"
+                                            : "text-white"
+                                    )}
+                                >
+                                    {transaction.transactionType === TransactionType.Income ? '+' : '-'}
+                                    {formatCurrency(transaction.amount)}
+                                </TableCell>
+                            </TableRow>
+                        ))
+                    ) : (
+                        // ✅ Veri yoksa gösterilecek özel tablo satırı
+                        <TableRow>
                             <TableCell
-                                className={cn(
-                                    "text-right font-medium",
-                                    transaction.type === "income" ? "text-primary" : "text-white"
-                                )}
+                                colSpan={4} // 4 kolonumuz var, tamamını kapsasın
+                                className="h-24 text-center text-muted-foreground"
                             >
-                                {transaction.type === 'income' ? '+' : '-'}
-                                {formatCurrency(transaction.amount)}
+                                Henüz bir işlem eklenmemiş.
                             </TableCell>
                         </TableRow>
-                    ))}
+                    )}
                 </TableBody>
             </Table>
         </div>

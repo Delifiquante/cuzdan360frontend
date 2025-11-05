@@ -1,12 +1,42 @@
-export interface Transaction {
-    id: string;
-    date: string;
-    description: string;
-    category: 'Market' | 'Maaş' | 'Faturalar' | 'Eğlence' | 'Ulaşım';
-    amount: number;
-    type: 'income' | 'expense';
+export enum TransactionType {
+    Income = 0,
+    Expense = 1,
 }
 
+export interface Category {
+    categoryId: number;
+    name: string;
+}
+
+export interface Source {
+    sourceId: number;
+    sourceName: string;
+}
+
+export interface AssetType {
+    assetTypeId: number;
+    name: string;
+    code: string;
+}
+
+
+export interface Transaction {
+    transactionId: number;
+    userId: number;
+    assetTypeId: number;
+    categoryId: number;
+    sourceId: number;
+    transactionType: TransactionType;
+    amount: number;
+    title: string | null; // Backend'de 'Title' (string?) olarak tanımlı
+    transactionDate: string; // (JSON'da string olarak gelir, örn: "2025-11-05T10:30:00Z")
+
+    // Backend'den gelen nested (iç içe) veriler
+    user: any; // (Şimdilik any olabilir veya User tipini tanımlayabilirsiniz)
+    assetType: AssetType;
+    category: Category;
+    source: Source;
+}
 export interface Investment {
     id: string;
     name: string;

@@ -2,7 +2,8 @@
 "use client";
 
 import React from "react";
-import { GlowingEffect } from "./ui/glowing-effect"; // Zaten mevcut
+// Bir önceki adımda düzelttiğimiz bileşeni import ediyoruz
+import { GlowingEffect } from "./ui/glowing-effect";
 import { cn } from "@/lib/utils";
 import {
     AreaChart,
@@ -62,13 +63,13 @@ export function FeaturesSection() {
         >
             <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 {/* Başlık ve Alt Başlık */}
-                <div className="mx-auto mb-16 max-w-3xl text-center">
+                <div className="mx-auto mb-16 max-w-4xl text-center">
                     <BlurText
                         text="Finansal Yönetimin Yeni Yolu"
                         delay={100}
                         animateBy="words"
                         direction="top"
-                        className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl"
+                        className="text-4xl mx-auto font-bold tracking-tight text-white sm:text-5xl lg:text-6xl"
                     />
                     <p className="mt-6 text-xl leading-8 text-neutral-400">
                         Cüzdan360, finansa karmaşık ve dağınık bir sorun olmaktan çıkarıp,
@@ -87,16 +88,12 @@ export function FeaturesSection() {
                                     "border-border/50 bg-card/80 p-8 shadow-xl backdrop-blur-sm"
                                 )}
                             >
-                                {/* GlowingEffect'i her kart için uyguluyoruz */}
-                                <GlowingEffect
-                                    glow
-                                    proximity={80}
-                                    spread={100}
-                                    blur={12}
-                                    borderWidth={1}
-                                    inactiveZone={0.8}
-                                />
-
+                                {/* GlowingEffect'i her kart için uyguluyoruz.
+                  Propları (spread, blur vs.) belirtmemize gerek yok,
+                  çünkü bir önceki adımda düzelttiğimiz 'glowing-effect.tsx' 
+                  dosyasındaki varsayılan değerleri kullanması yeterli.
+                */}
+           
                                 {/* Kart İçeriği */}
                                 <div className="relative z-10 flex h-full flex-col">
                                     <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand/10">

@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { animate } from "framer-motion"
+import { animate } from "framer-motion";
 
 interface GlowingEffectProps {
     blur?: number;
@@ -144,17 +144,17 @@ const GlowingEffect = memo(
                   var(--black),
                   var(--black) calc(25% / var(--repeating-conic-gradient-times))
                 )`
-                                    : `radial-gradient(circle, #dd7bbb 10%, #dd7bbb00 20%),
-                radial-gradient(circle at 40% 40%, #d79f1e 5%, #d79f1e00 15%),
-                radial-gradient(circle at 60% 60%, #5a922c 10%, #5a922c00 20%), 
-                radial-gradient(circle at 40% 60%, #4c7894 10%, #4c789400 20%),
+                                    : `radial-gradient(circle, #4ade80 10%, #4ade8000 20%),
+                radial-gradient(circle at 40% 40%, #22c55e 5%, #22c55e00 15%),
+                radial-gradient(circle at 60% 60%, #10b981 10%, #10b98100 20%), 
+                radial-gradient(circle at 40% 60%, #059669 10%, #05966900 20%),
                 repeating-conic-gradient(
                   from 236.84deg at 50% 50%,
-                  #dd7bbb 0%,
-                  #d79f1e calc(25% / var(--repeating-conic-gradient-times)),
-                  #5a922c calc(50% / var(--repeating-conic-gradient-times)), 
-                  #4c7894 calc(75% / var(--repeating-conic-gradient-times)),
-                  #dd7bbb calc(100% / var(--repeating-conic-gradient-times))
+                  #4ade80 0%,
+                  #22c55e calc(25% / var(--repeating-conic-gradient-times)),
+                  #10b981 calc(50% / var(--repeating-conic-gradient-times)), 
+                  #059669 calc(75% / var(--repeating-conic-gradient-times)),
+                  #4ade80 calc(100% / var(--repeating-conic-gradient-times))
                 )`,
                         } as React.CSSProperties
                     }
@@ -185,6 +185,6 @@ const GlowingEffect = memo(
     }
 );
 
-GlowingEffect.displayName = "GlowingEffect";
+    GlowingEffect.displayName = "GlowingEffect";
 
-export { GlowingEffect };
+    export { GlowingEffect };

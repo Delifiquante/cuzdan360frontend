@@ -1,38 +1,39 @@
-
 "use client";
 
 import React from 'react';
 import { ArrowUp, ArrowDown } from 'lucide-react';
-import { currencyRates } from '@/lib/data';
+// import { currencyRates } from '@/lib/data'; // Bu satırı kaldırıyoruz
 import { cn } from '@/lib/utils';
+import { CurrencyRate } from '@/lib/types'; // Veri tipini import ediyoruz
 
-export function CurrencyTicker() {
-  // Animasyon için verileri ikiye katlıyoruz
-  const duplicatedRates = [...currencyRates, ...currencyRates];
+// Bileşenin artık 'initialData' prop'u almasını sağlıyoruz
+export function CurrencyTicker({ initialData }: { initialData: CurrencyRate[] }) {
+    // Animasyon için verileri ikiye katlıyoruz
+    const duplicatedRates = [...initialData, ...initialData];
 
-  return (
-    <div className="relative w-full overflow-hidden bg-card border border-border p-2 rounded-lg">
-      <div className="animate-marquee whitespace-nowrap flex">
-        {duplicatedRates.map((rate, index) => (
-          <div key={index} className="flex items-center mx-4">
-            <span className="text-sm font-semibold">{rate.pair}</span>
-            <span className="text-sm mx-2">{rate.rate.toFixed(2)}</span>
-            <span
-              className={cn(
-                "text-xs flex items-center",
-                rate.change >= 0 ? "text-primary" : "text-destructive"
-              )}
-            >
+    return (
+        <div className="relative w-full overflow-hidden bg-card border border-border p-2 rounded-lg">
+            <div className="animate-marquee whitespace-nowrap flex">
+                {duplicatedRates.map((rate, index) => (
+                    <div key={index} className="flex items-center mx-4">
+                        <span className="text-sm font-semibold">{rate.pair}</span>
+                        <span className="text-sm mx-2">{rate.rate.toFixed(2)}</span>
+                        <span
+                            className={cn(
+                                "text-xs flex items-center",
+                                rate.change >= 0 ? "text-primary" : "text-destructive"
+                            )}
+                        >
               {rate.change >= 0 ? (
-                <ArrowUp className="h-3 w-3 mr-1" />
+                  <ArrowUp className="h-3 w-3 mr-1" />
               ) : (
-                <ArrowDown className="h-3 w-3 mr-1" />
+                  <ArrowDown className="h-3 w-3 mr-1" />
               )}
-              {rate.change.toFixed(2)}%
+                            {rate.change.toFixed(2)}%
             </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
 }

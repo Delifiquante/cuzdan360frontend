@@ -2,7 +2,7 @@ export interface Transaction {
   id: string;
   date: string;
   description: string;
-  category: 'Market' | 'Maaş' | 'Faturalar' | 'Eğlence' | 'Ulaşım';
+  category: string; // 👈 Burayı 'string' olarak değiştir
   amount: number;
   type: 'income' | 'expense';
 }

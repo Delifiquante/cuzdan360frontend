@@ -1,15 +1,55 @@
 "use client";
 
 import React from 'react';
-import { ArrowUp, ArrowDown } from 'lucide-react';
-// import { currencyRates } from '@/lib/data'; // Bu satırı kaldırıyoruz
+import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { CurrencyRate } from '@/lib/types'; // Veri tipini import ediyoruz
+import { CurrencyRate } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
-// Bileşenin artık 'initialData' prop'u almasını sağlıyoruz
-export function CurrencyTicker({ initialData }: { initialData: CurrencyRate[] }) {
-    // Animasyon için verileri ikiye katlıyoruz
+export function CurrencyTicker({
+                                   initialData,
+                                   isLoading
+                               }: {
+    initialData: CurrencyRate[],
+    isLoading: boolean
+}) {
+
+    // 1. Yükleniyorsa veya veri yoksa iskelet göster
+    if (isLoading) {
+        return (
+            <div className="relative w-full overflow-hidden bg-card border border-border p-2 rounded-lg">
+                <div className="whitespace-nowrap flex">
+                    <Skeleton className="h-5 w-full" />
+                </div>
+            </div>
+        );
+    }
+
+    // 2. Veri yüklendi ama boşsa (API hatası vb.)
+    if (initialData.length === 0) {
+        return (
+            <div className="relative w-full overflow-hidden bg-card border border-border p-2 rounded-lg">
+                <div className="whitespace-nowrap flex justify-center">
+                    <span className="text-sm text-muted-foreground">Kur verileri yüklenemedi</span>
+                </div>
+            </div>
+        );
+    }
+
+    // 3. Veri başarıyla yüklendi
     const duplicatedRates = [...initialData, ...initialData];
+
+    const getChangeIcon = (change: number) => {
+        if (change > 0) return <ArrowUp className="h-3 w-3 mr-1" />;
+        if (change < 0) return <ArrowDown className="h-3 w-3 mr-1" />;
+        return <Minus className="h-3 w-3 mr-1" />;
+    };
+
+    const getChangeColor = (change: number) => {
+        if (change > 0) return "text-primary";
+        if (change < 0) return "text-destructive";
+        return "text-muted-foreground";
+    };
 
     return (
         <div className="relative w-full overflow-hidden bg-card border border-border p-2 rounded-lg">
@@ -21,14 +61,10 @@ export function CurrencyTicker({ initialData }: { initialData: CurrencyRate[] })
                         <span
                             className={cn(
                                 "text-xs flex items-center",
-                                rate.change >= 0 ? "text-primary" : "text-destructive"
+                                getChangeColor(rate.change)
                             )}
                         >
-              {rate.change >= 0 ? (
-                  <ArrowUp className="h-3 w-3 mr-1" />
-              ) : (
-                  <ArrowDown className="h-3 w-3 mr-1" />
-              )}
+              {getChangeIcon(rate.change)}
                             {rate.change.toFixed(2)}%
             </span>
                     </div>

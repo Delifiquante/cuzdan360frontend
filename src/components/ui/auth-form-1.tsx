@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import { login, register, forgotPassword } from "@/lib/services/authService";
+import { login as loginService, register as registerService, forgotPassword as forgotPasswordService, verifyEmail as verifyEmailService } from "@/lib/services/authService";
 
 // --------------------------------
 // Types and Enums
@@ -23,6 +23,7 @@ enum AuthView {
     SIGN_UP = "sign-up",
     FORGOT_PASSWORD = "forgot-password",
     RESET_SUCCESS = "reset-success",
+    EMAIL_CONFIRMATION = "email-confirmation",
 }
 
 interface AuthState {
@@ -48,16 +49,21 @@ const signUpSchema = z.object({
     name: z.string().min(2, "İsim en az 2 karakter olmalıdır"),
     email: z.string().email("Geçersiz e-posta adresi"),
     password: z.string().min(8, "Şifre en az 8 karakter olmalıdır"),
-    terms: z.literal(true, { errorMap: () => ({ message: "Şartları kabul etmelisiniz" }) }),
+    terms: z.boolean().refine((val) => val === true, { message: "Şartları kabul etmelisiniz" }),
 });
 
 const forgotPasswordSchema = z.object({
     email: z.string().email("Geçersiz e-posta adresi"),
 });
 
+const emailConfirmationSchema = z.object({
+    code: z.string().min(6, "Doğrulama kodu en az 6 karakter olmalıdır"),
+});
+
 type SignInFormValues = z.infer<typeof signInSchema>;
 type SignUpFormValues = z.infer<typeof signUpSchema>;
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+type EmailConfirmationFormValues = z.infer<typeof emailConfirmationSchema>;
 
 // --------------------------------
 // Main Auth Component
@@ -69,9 +75,6 @@ function Auth({ className, ...props }: React.ComponentProps<"div">) {
     const setView = React.useCallback((view: AuthView) => {
         setState((prev) => ({ ...prev, view }));
     }, []);
-
-
-
 
     return (
         <div
@@ -109,6 +112,12 @@ function Auth({ className, ...props }: React.ComponentProps<"div">) {
                                 onSignIn={() => setView(AuthView.SIGN_IN)}
                             />
                         )}
+                        {state.view === AuthView.EMAIL_CONFIRMATION && (
+                            <AuthEmailConfirmation
+                                key="email-confirmation"
+                                onSignIn={() => setView(AuthView.SIGN_IN)}
+                            />
+                        )}
                     </AnimatePresence>
                 </div>
             </div>
@@ -120,13 +129,13 @@ function Auth({ className, ...props }: React.ComponentProps<"div">) {
 // Shared Components
 // --------------------------------
 
-interface AuthFormProps<T> {
-    onSubmit: (data: T) => Promise<void>;
+interface AuthFormProps {
+    onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
     children: React.ReactNode;
     className?: string;
 }
 
-function AuthForm<T>({ onSubmit, children, className }: AuthFormProps<T>) {
+function AuthForm({ onSubmit, children, className }: AuthFormProps) {
     return (
         <form
             onSubmit={onSubmit}
@@ -234,7 +243,7 @@ function AuthSignIn({ onForgotPassword, onSignUp }: AuthSignInProps) {
         setFormState((prev) => ({ ...prev, isLoading: true, error: null }));
 
         try {
-            const result = await login({
+            const result = await loginService({
                 email: data.email,
                 password: data.password,
             });
@@ -277,7 +286,7 @@ function AuthSignIn({ onForgotPassword, onSignUp }: AuthSignInProps) {
 
             <AuthError message={formState.error} />
 
-            <AuthForm<SignInFormValues> onSubmit={handleSubmit(onSubmit)}>
+            <AuthForm onSubmit={handleSubmit(onSubmit)}>
                 <div className="space-y-2">
                     <Label htmlFor="email">E-posta</Label>
                     <Input
@@ -383,13 +392,11 @@ function AuthSignUp({ onSignIn }: AuthSignUpProps) {
 
     const terms = watch("terms");
 
-    // eternalhittman/cuzdan360frontend/EternalHittMan-cuzdan360frontend-5b8e7809eb927e952bf260a048ed11a2baa2eaba/src/components/ui/auth-form-1.tsx
-
     const onSubmit = async (data: SignUpFormValues) => {
         setFormState((prev) => ({ ...prev, isLoading: true, error: null }));
 
         try {
-            const result = await register({
+            const result = await registerService({
                 username: data.name,
                 email: data.email,
                 password: data.password,
@@ -424,7 +431,7 @@ function AuthSignUp({ onSignIn }: AuthSignUpProps) {
 
             <AuthError message={formState.error} />
 
-            <AuthForm<SignUpFormValues> onSubmit={handleSubmit(onSubmit)}>
+            <AuthForm onSubmit={handleSubmit(onSubmit)}>
                 <div className="space-y-2">
                     <Label htmlFor="name">İsim</Label>
                     <Input
@@ -561,7 +568,7 @@ function AuthForgotPassword({ onSignIn, onSuccess }: AuthForgotPasswordProps) {
     const onSubmit = async (data: ForgotPasswordFormValues) => {
         setFormState((prev) => ({ ...prev, isLoading: true, error: null }));
         try {
-            await forgotPassword(data.email);
+            await forgotPasswordService(data.email);
             onSuccess();
         } catch {
             setFormState((prev) => ({ ...prev, error: "Beklenmeyen bir hata oluştu" }));
@@ -599,7 +606,7 @@ function AuthForgotPassword({ onSignIn, onSuccess }: AuthForgotPasswordProps) {
 
             <AuthError message={formState.error} />
 
-            <AuthForm<ForgotPasswordFormValues> onSubmit={handleSubmit(onSubmit)}>
+            <AuthForm onSubmit={handleSubmit(onSubmit)}>
                 <div className="space-y-2">
                     <Label htmlFor="email">E-posta</Label>
                     <Input
@@ -687,6 +694,132 @@ function AuthResetSuccess({ onSignIn }: AuthResetSuccessProps) {
 }
 
 // --------------------------------
+// Email Confirmation Component
+// --------------------------------
+interface AuthEmailConfirmationProps {
+    onSignIn: () => void;
+}
+
+function AuthEmailConfirmation({ onSignIn }: AuthEmailConfirmationProps) {
+    const [isVerified, setIsVerified] = React.useState(false);
+    const [formState, setFormState] = React.useState<FormState>({
+        isLoading: false,
+        error: null,
+        showPassword: false,
+    });
+
+    const { register, handleSubmit, formState: { errors } } = useForm<EmailConfirmationFormValues>({
+        resolver: zodResolver(emailConfirmationSchema),
+        defaultValues: { code: "" },
+    });
+
+    const onSubmit = async (data: EmailConfirmationFormValues) => {
+        setFormState((prev) => ({ ...prev, isLoading: true, error: null }));
+        try {
+            const result = await verifyEmailService(data.code);
+            if (result.error) {
+                setFormState((prev) => ({ ...prev, error: result.error || "Doğrulama başarısız" }));
+            } else {
+                setIsVerified(true);
+            }
+        } catch (err) {
+            setFormState((prev) => ({ ...prev, error: "Sunucuya bağlanılamadı." }));
+        } finally {
+            setFormState((prev) => ({ ...prev, isLoading: false }));
+        }
+    };
+
+    if (isVerified) {
+        return (
+            <motion.div
+                data-slot="auth-email-confirmation-success"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="flex flex-col items-center p-8 text-center"
+            >
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                    <MailCheck className="h-8 w-8 text-primary" />
+                </div>
+
+                <h1 className="text-2xl font-semibold text-foreground">E-posta Doğrulandı</h1>
+                <p className="mt-2 text-sm text-muted-foreground">
+                    E-posta adresiniz başarıyla doğrulandı. Artık hesabınıza giriş yapabilirsiniz.
+                </p>
+
+                <Button
+                    className="mt-6 w-full"
+                    onClick={onSignIn}
+                >
+                    Giriş Yap
+                </Button>
+            </motion.div>
+        );
+    }
+
+    return (
+        <motion.div
+            data-slot="auth-email-confirmation-input"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="p-8"
+        >
+            <div className="mb-8 text-center">
+                <h1 className="text-3xl font-semibold text-foreground">E-postanızı Doğrulayın</h1>
+                <p className="mt-2 text-sm text-muted-foreground">
+                    Lütfen e-postanıza gönderilen 6 haneli doğrulama kodunu girin.
+                </p>
+            </div>
+
+            <AuthError message={formState.error} />
+
+            <AuthForm onSubmit={handleSubmit(onSubmit)}>
+                <div className="space-y-2">
+                    <Label htmlFor="code">Doğrulama Kodu</Label>
+                    <Input
+                        id="code"
+                        type="text"
+                        placeholder="123456"
+                        autoComplete="one-time-code"
+                        disabled={formState.isLoading}
+                        className={cn(errors.code && "border-destructive", "text-center text-lg tracking-widest")}
+                        maxLength={6}
+                        {...register("code")}
+                    />
+                    {errors.code && <p className="text-xs text-destructive">{errors.code.message}</p>}
+                </div>
+
+                <Button type="submit" className="w-full" disabled={formState.isLoading}>
+                    {formState.isLoading ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Doğrulanıyor...
+                        </>
+                    ) : (
+                        "Doğrula"
+                    )}
+                </Button>
+            </AuthForm>
+
+            <p className="mt-8 text-center text-sm text-muted-foreground">
+                Kod gelmedi mi?{" "}
+                <Button
+                    variant="link"
+                    className="h-auto p-0 text-sm"
+                    onClick={() => alert("Kod tekrar gönderildi!")}
+                    disabled={formState.isLoading}
+                >
+                    Tekrar Gönder
+                </Button>
+            </p>
+        </motion.div>
+    );
+}
+
+// --------------------------------
 // Exports
 // --------------------------------
 
@@ -696,6 +829,7 @@ export {
     AuthSignUp,
     AuthForgotPassword,
     AuthResetSuccess,
+    AuthEmailConfirmation,
     AuthForm,
     AuthError,
     AuthSocialButtons,

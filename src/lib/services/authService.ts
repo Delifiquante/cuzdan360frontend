@@ -114,3 +114,21 @@ export async function forgotPassword(email: string): Promise<void> {
     // Assuming no endpoint known yet, we'll just simulate it for now to match UI behavior.
     await delay(1500);
 }
+
+export async function verifyEmail(code: string): Promise<AuthResponse> {
+    if (USE_MOCK) {
+        await delay(MOCK_DELAY);
+        if (code === '123456') {
+            return Promise.resolve({
+                message: 'E-posta başarıyla doğrulandı.',
+            });
+        }
+        return Promise.resolve({
+            error: 'Geçersiz doğrulama kodu.',
+        });
+    }
+
+    // Implement real verification logic here
+    await delay(1500);
+    return Promise.resolve({ error: 'Sunucu yapılandırılmadı.' });
+}

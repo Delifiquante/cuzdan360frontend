@@ -27,50 +27,54 @@ const formatCurrency = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value);
 
-const overviewData = [
-  {
-    id: 'net-worth',
-    title: 'Net Değer',
-    value: netWorth,
-    icon: Wallet,
-    footer: <p className="text-xs text-muted-foreground">geçen aydan +%2.1</p>,
-  },
-  {
-    id: 'cash-flow',
-    title: 'Nakit Akışı',
-    value: cashFlow,
-    icon: Banknote,
-    footer: <p className="text-xs text-muted-foreground">Bu ay</p>,
-  },
-  {
-    id: 'total-assets',
-    title: 'Toplam Varlıklar',
-    value: totalAssets,
-    icon: CircleDollarSign,
-    footer: (
-      <div className="flex items-center text-xs text-muted-foreground">
-        <ArrowUp className="h-3 w-3 text-primary" />
-        <span className="text-primary ml-1">%5.2</span>
-        <span>&nbsp;bu çeyrek</span>
-      </div>
-    ),
-  },
-  {
-    id: 'total-debts',
-    title: 'Toplam Borçlar',
-    value: totalDebts,
-    icon: CreditCard,
-    footer: (
-      <div className="flex items-center text-xs text-muted-foreground">
-        <ArrowDown className="h-3 w-3 text-destructive" />
-        <span className="text-destructive ml-1">%1.8</span>
-        <span>&nbsp;bu çeyrek</span>
-      </div>
-    ),
-  },
-];
+interface OverviewCardsProps {
+  netWorth: number;
+}
 
-export function OverviewCards() {
+export function OverviewCards({ netWorth }: OverviewCardsProps) {
+  const overviewData = [
+    {
+      id: 'net-worth',
+      title: 'Net Değer',
+      value: netWorth,
+      icon: Wallet,
+      footer: <p className="text-xs text-muted-foreground">geçen aydan +%2.1</p>,
+    },
+    {
+      id: 'cash-flow',
+      title: 'Nakit Akışı',
+      value: cashFlow,
+      icon: Banknote,
+      footer: <p className="text-xs text-muted-foreground">Bu ay</p>,
+    },
+    {
+      id: 'total-assets',
+      title: 'Toplam Varlıklar',
+      value: totalAssets,
+      icon: CircleDollarSign,
+      footer: (
+        <div className="flex items-center text-xs text-muted-foreground">
+          <ArrowUp className="h-3 w-3 text-primary" />
+          <span className="text-primary ml-1">%5.2</span>
+          <span>&nbsp;bu çeyrek</span>
+        </div>
+      ),
+    },
+    {
+      id: 'total-debts',
+      title: 'Toplam Borçlar',
+      value: totalDebts,
+      icon: CreditCard,
+      footer: (
+        <div className="flex items-center text-xs text-muted-foreground">
+          <ArrowDown className="h-3 w-3 text-destructive" />
+          <span className="text-destructive ml-1">%1.8</span>
+          <span>&nbsp;bu çeyrek</span>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {overviewData.map((item) => (

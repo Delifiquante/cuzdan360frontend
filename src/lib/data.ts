@@ -1,18 +1,137 @@
-import type { Transaction, Investment, Debt, AssetAllocation, NetWorthDataPoint, UpcomingPayment, NewsArticle, CurrencyRate } from './types';
+import type { Transaction, Investment, Debt, AssetAllocation, NetWorthDataPoint, UpcomingPayment, NewsArticle, CurrencyRate, Category, Source, AssetType } from './types';
+import { TransactionType } from './types';
 
 export const netWorth = 250000;
 export const cashFlow = 1500;
 export const totalAssets = 300000;
 export const totalDebts = 50000;
 
+export const categories: Category[] = [
+  { categoryId: 1, name: 'Market' },
+  { categoryId: 2, name: 'Maaş' },
+  { categoryId: 3, name: 'Faturalar' },
+  { categoryId: 4, name: 'Eğlence' },
+  { categoryId: 5, name: 'Ulaşım' },
+];
+
+export const sources: Source[] = [
+  { sourceId: 1, sourceName: 'Nakit' },
+  { sourceId: 2, sourceName: 'Kredi Kartı' },
+  { sourceId: 3, sourceName: 'Banka Hesabı' },
+];
+
+export const assetTypes: AssetType[] = [
+  { assetTypeId: 1, name: 'TL', code: 'TRY' },
+  { assetTypeId: 2, name: 'Dolar', code: 'USD' },
+  { assetTypeId: 3, name: 'Euro', code: 'EUR' },
+];
+
 export const transactions: Transaction[] = [
-  { id: '1', date: '2024-07-26', description: 'Süpermarket', category: 'Market', amount: 75.6, type: 'expense' },
-  { id: '2', date: '2024-07-25', description: 'Aylık Maaş', category: 'Maaş', amount: 4500, type: 'income' },
-  { id: '3', date: '2024-07-24', description: 'Elektrik Faturası', category: 'Faturalar', amount: 120, type: 'expense' },
-  { id: '4', date: '2024-07-23', description: 'Sinema Biletleri', category: 'Eğlence', amount: 30, type: 'expense' },
-  { id: '5', date: '2024-07-22', description: 'Benzin', category: 'Ulaşım', amount: 50, type: 'expense' },
-  { id: '6', date: '2024-07-21', description: 'Serbest Proje', category: 'Maaş', amount: 800, type: 'income' },
-  { id: '7', date: '2024-07-20', description: 'Akşam Yemeği', category: 'Eğlence', amount: 85, type: 'expense' },
+  {
+    transactionId: 1,
+    userId: 1,
+    assetTypeId: 1,
+    categoryId: 1,
+    sourceId: 2,
+    transactionType: TransactionType.Expense,
+    amount: 75.6,
+    title: 'Süpermarket',
+    transactionDate: '2024-07-26T10:00:00Z',
+    user: { id: 1, name: 'Demo User' },
+    assetType: assetTypes[0],
+    category: categories[0],
+    source: sources[1]
+  },
+  {
+    transactionId: 2,
+    userId: 1,
+    assetTypeId: 1,
+    categoryId: 2,
+    sourceId: 3,
+    transactionType: TransactionType.Income,
+    amount: 4500,
+    title: 'Aylık Maaş',
+    transactionDate: '2024-07-25T09:00:00Z',
+    user: { id: 1, name: 'Demo User' },
+    assetType: assetTypes[0],
+    category: categories[1],
+    source: sources[2]
+  },
+  {
+    transactionId: 3,
+    userId: 1,
+    assetTypeId: 1,
+    categoryId: 3,
+    sourceId: 3,
+    transactionType: TransactionType.Expense,
+    amount: 120,
+    title: 'Elektrik Faturası',
+    transactionDate: '2024-07-24T14:30:00Z',
+    user: { id: 1, name: 'Demo User' },
+    assetType: assetTypes[0],
+    category: categories[2],
+    source: sources[2]
+  },
+  {
+    transactionId: 4,
+    userId: 1,
+    assetTypeId: 1,
+    categoryId: 4,
+    sourceId: 2,
+    transactionType: TransactionType.Expense,
+    amount: 30,
+    title: 'Sinema Biletleri',
+    transactionDate: '2024-07-23T20:00:00Z',
+    user: { id: 1, name: 'Demo User' },
+    assetType: assetTypes[0],
+    category: categories[3],
+    source: sources[1]
+  },
+  {
+    transactionId: 5,
+    userId: 1,
+    assetTypeId: 1,
+    categoryId: 5,
+    sourceId: 2,
+    transactionType: TransactionType.Expense,
+    amount: 50,
+    title: 'Benzin',
+    transactionDate: '2024-07-22T18:15:00Z',
+    user: { id: 1, name: 'Demo User' },
+    assetType: assetTypes[0],
+    category: categories[4],
+    source: sources[1]
+  },
+  {
+    transactionId: 6,
+    userId: 1,
+    assetTypeId: 1,
+    categoryId: 2,
+    sourceId: 3,
+    transactionType: TransactionType.Income,
+    amount: 800,
+    title: 'Serbest Proje',
+    transactionDate: '2024-07-21T11:00:00Z',
+    user: { id: 1, name: 'Demo User' },
+    assetType: assetTypes[0],
+    category: categories[1],
+    source: sources[2]
+  },
+  {
+    transactionId: 7,
+    userId: 1,
+    assetTypeId: 1,
+    categoryId: 4,
+    sourceId: 1,
+    transactionType: TransactionType.Expense,
+    amount: 85,
+    title: 'Akşam Yemeği',
+    transactionDate: '2024-07-20T19:30:00Z',
+    user: { id: 1, name: 'Demo User' },
+    assetType: assetTypes[0],
+    category: categories[3],
+    source: sources[0]
+  },
 ];
 
 export const investments: Investment[] = [
@@ -29,10 +148,10 @@ export const debts: Debt[] = [
 ];
 
 export const assetAllocation: AssetAllocation[] = [
-    { name: 'Hisse Senetleri', value: 190000, fill: 'hsl(var(--chart-1))' },
-    { name: 'ETFler', value: 120000, fill: 'hsl(var(--chart-2))' },
-    { name: 'Kripto', value: 60000, fill: 'hsl(var(--chart-3))' },
-    { name: 'Nakit', value: 30000, fill: 'hsl(var(--chart-4))' },
+  { name: 'Hisse Senetleri', value: 190000, fill: 'hsl(var(--chart-1))' },
+  { name: 'ETFler', value: 120000, fill: 'hsl(var(--chart-2))' },
+  { name: 'Kripto', value: 60000, fill: 'hsl(var(--chart-3))' },
+  { name: 'Nakit', value: 30000, fill: 'hsl(var(--chart-4))' },
 ];
 
 export const netWorthHistory: NetWorthDataPoint[] = [

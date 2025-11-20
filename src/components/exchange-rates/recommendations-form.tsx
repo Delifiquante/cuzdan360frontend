@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { analyzeRates } from "@/app/exchange-rates/actions";
+import { analyzeRates } from "@/app/dashboard/exchange-rates/actions";
 import { Loader2, Newspaper } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -120,30 +120,30 @@ export function RecommendationsForm() {
       </Form>
 
       {error && (
-         <Alert variant="destructive">
-           <AlertTitle>Hata</AlertTitle>
-           <AlertDescription>{error}</AlertDescription>
-         </Alert>
+        <Alert variant="destructive">
+          <AlertTitle>Hata</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
       {recommendations && (
-          <BackgroundGradient className="rounded-lg mt-6" animate={false}>
-            <Card className="bg-background">
-              <CardHeader>
-                <CardTitle>Önerilen Okumalar</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  {recommendations.map((rec, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <Newspaper className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                      <span className="text-sm">{rec}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </BackgroundGradient>
+        <BackgroundGradient className="rounded-lg mt-6" animate={false}>
+          <Card className="bg-background">
+            <CardHeader>
+              <CardTitle>Önerilen Okumalar</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                {recommendations.map((rec, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <Newspaper className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                    <span className="text-sm">{rec}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        </BackgroundGradient>
       )}
     </div>
   );

@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { login, register, forgotPassword } from "@/lib/services/authService";
 
 // --------------------------------
 // Types and Enums
@@ -232,27 +233,14 @@ function AuthSignIn({ onForgotPassword, onSignUp }: AuthSignInProps) {
     const onSubmit = async (data: SignInFormValues) => {
         setFormState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-        // Adım 1'de tanımladığımız URL'i al
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-
         try {
-            // Backend API'sine fetch isteği yap (Adım 3'te eklediğimiz yeni endpoint'e)
-            const response = await fetch(`${apiBaseUrl}/api/Auth/login-email`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: data.email,
-                    password: data.password,
-                }),
+            const result = await login({
+                email: data.email,
+                password: data.password,
             });
 
-            const result = await response.json();
-
-            if (!response.ok) {
-                // Backend'den gelen hata mesajını göster (result.error veya result.message)
-                setFormState((prev) => ({ ...prev, error: result.error || result.message || "Bilinmeyen bir hata oluştu" }));
+            if (result.error) {
+                setFormState((prev) => ({ ...prev, error: result.error || "Bilinmeyen bir hata oluştu" }));
             } else {
                 // Başarılı giriş
                 console.log("Giriş başarılı:", result);
@@ -395,35 +383,20 @@ function AuthSignUp({ onSignIn }: AuthSignUpProps) {
 
     const terms = watch("terms");
 
-// eternalhittman/cuzdan360frontend/EternalHittMan-cuzdan360frontend-5b8e7809eb927e952bf260a048ed11a2baa2eaba/src/components/ui/auth-form-1.tsx
+    // eternalhittman/cuzdan360frontend/EternalHittMan-cuzdan360frontend-5b8e7809eb927e952bf260a048ed11a2baa2eaba/src/components/ui/auth-form-1.tsx
 
     const onSubmit = async (data: SignUpFormValues) => {
         setFormState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-
         try {
-            // Sahte beklemeyi kaldır
-            // await new Promise((resolve) => setTimeout(resolve, 1500)); 
-
-            const response = await fetch(`${apiBaseUrl}/api/Auth/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    // Backend modeli 'Username' bekliyor, 'name' değil
-                    username: data.name,
-                    email: data.email,
-                    password: data.password,
-                }),
+            const result = await register({
+                username: data.name,
+                email: data.email,
+                password: data.password,
             });
 
-            const result = await response.json();
-
-            if (!response.ok) {
-                // Backend'den gelen hata mesajını göster (result.error veya result.message)
-                setFormState((prev) => ({ ...prev, error: result.error || result.message || "Kayıt sırasında bir hata oluştu" }));
+            if (result.error) {
+                setFormState((prev) => ({ ...prev, error: result.error || "Kayıt sırasında bir hata oluştu" }));
             } else {
                 // Başarılı kayıt
                 alert(result.message || 'Kayıt başarılı! Lütfen e-posta adresinize gönderilen doğrulama linkine tıklayın.');
@@ -588,7 +561,7 @@ function AuthForgotPassword({ onSignIn, onSuccess }: AuthForgotPasswordProps) {
     const onSubmit = async (data: ForgotPasswordFormValues) => {
         setFormState((prev) => ({ ...prev, isLoading: true, error: null }));
         try {
-            await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate API call
+            await forgotPassword(data.email);
             onSuccess();
         } catch {
             setFormState((prev) => ({ ...prev, error: "Beklenmeyen bir hata oluştu" }));

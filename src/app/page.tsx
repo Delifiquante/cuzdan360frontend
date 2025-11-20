@@ -17,9 +17,9 @@ import { MainNavbar } from "@/components/layout/main-navbar";
 import Silk from "../components/Silk";
 import Demo from "../components/ui/demo"; // Assuming demo.tsx is in components/ui
 import { Pricing2 } from "@/components/ui/pricing-cards";
-import {HeroSection} from "@/components/Herosection";
-import {FeaturesSection} from "@/components/features-section";
-
+import { HeroSection } from "@/components/Herosection";
+import { FeaturesSection } from "@/components/features-section";
+// test deneme
 export default function Home() {
     return (
         <>
@@ -35,9 +35,9 @@ export default function Home() {
         */}
                 <HeroSection />
                 {/* Features Section */}
-                
+
                 <FeaturesSection />
-               
+
                 <section id="pricing" className="py-20 sm:py-32">
                     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                         <Pricing2 />
@@ -55,15 +55,15 @@ export default function Home() {
                         <div className="mt-12 mx-auto max-w-3xl">
                             <Accordion type="single" collapsible className="w-full">
                                 <AccordionItem value="item-1">
-                                <AccordionTrigger className="text-white">
-                                    Cüzdan360 nedir?
-                                </AccordionTrigger>
-                                <AccordionContent className="text-neutral-300">
-                                    Cüzdan360, kişisel ve kurumsal finanslarınızı tek bir
-                                    platformdan yönetmenizi sağlayan, bütçe planlaması, harcama
-                                    takibi ve finansal analizler sunan bir web uygulamasıdır.
-                                </AccordionContent>
-                            </AccordionItem>
+                                    <AccordionTrigger className="text-white">
+                                        Cüzdan360 nedir?
+                                    </AccordionTrigger>
+                                    <AccordionContent className="text-neutral-300">
+                                        Cüzdan360, kişisel ve kurumsal finanslarınızı tek bir
+                                        platformdan yönetmenizi sağlayan, bütçe planlaması, harcama
+                                        takibi ve finansal analizler sunan bir web uygulamasıdır.
+                                    </AccordionContent>
+                                </AccordionItem>
                                 <AccordionItem value="item-2">
                                     <AccordionTrigger className="text-white">
                                         Verilerim güvende mi?
@@ -84,7 +84,7 @@ export default function Home() {
                                         seçenektir. İşletmeler için ise "KOBİ" planımız tüm
                                         ihtiyaçlarınızı karşılayacaktır.
                                     </AccordionContent>
-                                    </AccordionItem>
+                                </AccordionItem>
                                 <AccordionItem value="item-4">
                                     <AccordionTrigger className="text-white">
                                         Mobil uygulamanız var mı?
@@ -114,20 +114,20 @@ export default function Home() {
                                 </p>
                                 <div className="mt-8">
                                     <Link href="/login">
-                                    <Button size="lg">Ücretsiz Başlayın</Button>
-                                </Link>
+                                        <Button size="lg">Ücretsiz Başlayın</Button>
+                                    </Link>
                                 </div>
                             </div>
                             <div className="flex justify-center">
-                            <Image
-                                // 'next/image' hatası için 'src' URL'i düzeltildi.
-                                src="https://images.unsplash.com/photo-1559526324-c1f275fbfa32?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                                alt="Finansal Özgürlük"
-                                width={500}
-                                height={300}
-                                className="rounded-lg shadow-2xl"
-                            />
-                        </div>
+                                <Image
+                                    // 'next/image' hatası için 'src' URL'i düzeltildi.
+                                    src="https://images.unsplash.com/photo-1559526324-c1f275fbfa32?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                    alt="Finansal Özgürlük"
+                                    width={500}
+                                    height={300}
+                                    className="rounded-lg shadow-2xl"
+                                />
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -135,31 +135,31 @@ export default function Home() {
                 {/* Contact Section */}
                 <section id="contact" className="py-20 sm:py-32">
                     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                    <Demo />
-                </div>
+                        <Demo />
+                    </div>
                 </section>
 
                 {/* Footer */}
                 <footer className="border-t border-gray-700">
                     <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row sm:px-6 lg:px-8">
-                    <p className="text-sm text-neutral-400">
-                        &copy; {new Date().getFullYear()} Cüzdan360. Tüm hakları saklıdır.
-                    </p>
-                    <div className="flex gap-4">
-                        <Link
-                            href="#"
-                            className="text-sm text-neutral-400 hover:text-white"
+                        <p className="text-sm text-neutral-400">
+                            &copy; {new Date().getFullYear()} Cüzdan360. Tüm hakları saklıdır.
+                        </p>
+                        <div className="flex gap-4">
+                            <Link
+                                href="#"
+                                className="text-sm text-neutral-400 hover:text-white"
                             >
-                            Gizlilik Politikası
-                        </Link>
-                        <Link
-                            href="#"
-                            className="text-sm text-neutral-400 hover:text-white"
-                        >
-                            Kullanım Şartları
-                        </Link>
+                                Gizlilik Politikası
+                            </Link>
+                            <Link
+                                href="#"
+                                className="text-sm text-neutral-400 hover:text-white"
+                            >
+                                Kullanım Şartları
+                            </Link>
+                        </div>
                     </div>
-                </div>
                 </footer>
             </div>
         </>

@@ -10,14 +10,16 @@ import { BackgroundGradient } from "@/components/ui/background-gradient";
 import { Button } from '@/components/ui/button';
 import { getUserProfile, type UserProfile } from '@/lib/services/dashboardService';
 import { ProfileDialog } from './profile-dialog';
-
-
+import { SecurityDialog } from './security-dialog';
+import { NotificationDialog } from './notification-dialog';
 
 
 export default function AccountPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+    const [isSecurityDialogOpen, setIsSecurityDialogOpen] = useState(false);
+    const [isNotificationDialogOpen, setIsNotificationDialogOpen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -57,13 +59,13 @@ export default function AccountPage() {
             title: "Güvenlik Ayarları",
             description: "Parolanızı değiştirin ve iki faktörlü kimlik doğrulamayı yönetin.",
             icon: <Shield className="w-6 h-6 text-primary" />,
-            action: () => console.log("Güvenlik Ayarları tıklandı"),
+            action: () => setIsSecurityDialogOpen(true),
         },
         {
             title: "Bildirim Tercihleri",
             description: "Hangi konularda bildirim almak istediğinizi seçin.",
             icon: <Bell className="w-6 h-6 text-primary" />,
-            action: () => console.log("Bildirim Tercihleri tıklandı"),
+            action: () => setIsNotificationDialogOpen(true),
         },
         {
             title: "Görünüm ve Tema",
@@ -110,7 +112,7 @@ export default function AccountPage() {
                         </BackgroundGradient>
                     ))}
 
-                    {/* YENİ EKLENDİ: Çıkış Yap Kartı */}
+                    {/* Çıkış Yap Kartı */}
                     <Card>
                         <CardContent className="pt-6">
                             <Button variant="destructive" className="w-full" onClick={handleLogout}>
@@ -125,6 +127,18 @@ export default function AccountPage() {
                         isOpen={isProfileDialogOpen}
                         onClose={() => setIsProfileDialogOpen(false)}
                         initialData={profile}
+                    />
+
+                    {/* Security Dialog */}
+                    <SecurityDialog
+                        isOpen={isSecurityDialogOpen}
+                        onClose={() => setIsSecurityDialogOpen(false)}
+                    />
+
+                    {/* Notification Dialog */}
+                    <NotificationDialog
+                        isOpen={isNotificationDialogOpen}
+                        onClose={() => setIsNotificationDialogOpen(false)}
                     />
 
                 </div>

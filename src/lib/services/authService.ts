@@ -23,6 +23,17 @@ export interface AuthResponse {
     error?: string;
 }
 
+export interface ChangePasswordRequest {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+}
+
+export interface UpdateProfileRequest {
+    username: string;
+    email: string;
+}
+
 export async function login(data: LoginRequest): Promise<AuthResponse> {
     if (USE_MOCK) {
         await delay(MOCK_DELAY);
@@ -102,23 +113,24 @@ export async function register(data: RegisterRequest): Promise<AuthResponse> {
     }
 }
 
-export async function forgotPassword(email: string): Promise<void> {
+export async function forgotPassword(email: string): Promise<AuthResponse> {
     if (USE_MOCK) {
         await delay(MOCK_DELAY);
-        return Promise.resolve();
+        return Promise.resolve({
+            message: 'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.',
+        });
     }
 
-    // Implement real forgot password if needed, or leave as TODO since it wasn't fully implemented in the UI either (simulated).
-    // The UI had: await new Promise((resolve) => setTimeout(resolve, 1500));
-    // So we just keep it mock-like or implement if we knew the endpoint.
-    // Assuming no endpoint known yet, we'll just simulate it for now to match UI behavior.
-    await delay(1500);
+    return fetchAuth('/api/Auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+    });
 }
 
-export async function verifyEmail(code: string): Promise<AuthResponse> {
+export async function verifyEmail(token: string): Promise<AuthResponse> {
     if (USE_MOCK) {
         await delay(MOCK_DELAY);
-        if (code === '123456') {
+        if (token === '123456') {
             return Promise.resolve({
                 message: 'E-posta başarıyla doğrulandı.',
             });
@@ -128,7 +140,36 @@ export async function verifyEmail(code: string): Promise<AuthResponse> {
         });
     }
 
-    // Implement real verification logic here
-    await delay(1500);
-    return Promise.resolve({ error: 'Sunucu yapılandırılmadı.' });
+    return fetchAuth('/api/Auth/verify-email', {
+        method: 'POST',
+        body: JSON.stringify({ token }),
+    });
+}
+
+export async function updateProfile(data: UpdateProfileRequest): Promise<AuthResponse> {
+    if (USE_MOCK) {
+        await delay(MOCK_DELAY);
+        return Promise.resolve({
+            message: 'Profil bilgileri başarıyla güncellendi.',
+        });
+    }
+
+    return fetchAuth('/api/Auth/profile', {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    });
+}
+
+export async function changePassword(data: ChangePasswordRequest): Promise<AuthResponse> {
+    if (USE_MOCK) {
+        await delay(MOCK_DELAY);
+        return Promise.resolve({
+            message: 'Şifreniz başarıyla değiştirildi.',
+        });
+    }
+
+    return fetchAuth('/api/Auth/change-password', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
 }

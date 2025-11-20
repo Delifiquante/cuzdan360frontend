@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
+import { changePassword } from '@/lib/services/authService';
+import { useToast } from "@/hooks/use-toast";
 
 interface SecurityDialogProps {
     isOpen: boolean;
@@ -39,6 +41,12 @@ export function SecurityDialog({ isOpen, onClose }: SecurityDialogProps) {
         setShowPasswords(prev => ({ ...prev, [field]: !prev[field] }));
     };
 
+
+
+    // ...
+
+    const { toast } = useToast();
+
     const handleSavePassword = async () => {
         // Validation
         if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
@@ -57,14 +65,36 @@ export function SecurityDialog({ isOpen, onClose }: SecurityDialogProps) {
         }
 
         setIsLoading(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        try {
+            const res = await changePassword({
+                currentPassword: passwordData.currentPassword,
+                newPassword: passwordData.newPassword,
+                confirmPassword: passwordData.confirmPassword
+            });
 
-        console.log('Password changed:', passwordData);
-
-        setIsLoading(false);
-        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-        alert('Şifreniz başarıyla değiştirildi!');
+            if (res.error) {
+                toast({
+                    variant: "destructive",
+                    title: "Hata",
+                    description: res.error || "Şifre değiştirilemedi.",
+                });
+            } else {
+                toast({
+                    title: "Başarılı",
+                    description: res.message || "Şifreniz başarıyla değiştirildi.",
+                });
+                setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                // onClose(); // Optional: close dialog on success
+            }
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Hata",
+                description: "Bir hata oluştu.",
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleToggle2FA = async (enabled: boolean) => {

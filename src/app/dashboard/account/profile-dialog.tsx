@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UserProfile } from '@/lib/services/dashboardService';
 import { Loader2 } from 'lucide-react';
+import { updateProfile } from '@/lib/services/authService';
+import { useToast } from "@/hooks/use-toast";
 
 interface ProfileDialogProps {
     isOpen: boolean;
@@ -37,17 +39,42 @@ export function ProfileDialog({ isOpen, onClose, initialData }: ProfileDialogPro
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+
+
+    // ...
+
+    const { toast } = useToast();
+
     const handleSave = async () => {
         setIsLoading(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        try {
+            const res = await updateProfile({
+                username: formData.username,
+                email: formData.email
+            });
 
-        console.log('Saved profile:', formData);
-        // Here you would typically call an update API
-
-        setIsLoading(false);
-        onClose();
-        // Optionally show a success toast here
+            if (res.error) {
+                toast({
+                    variant: "destructive",
+                    title: "Hata",
+                    description: res.error || "Profil güncellenemedi.",
+                });
+            } else {
+                toast({
+                    title: "Başarılı",
+                    description: res.message || "Profil bilgileri güncellendi.",
+                });
+                onClose();
+            }
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Hata",
+                description: "Bir hata oluştu.",
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

@@ -568,8 +568,12 @@ function AuthForgotPassword({ onSignIn, onSuccess }: AuthForgotPasswordProps) {
     const onSubmit = async (data: ForgotPasswordFormValues) => {
         setFormState((prev) => ({ ...prev, isLoading: true, error: null }));
         try {
-            await forgotPasswordService(data.email);
-            onSuccess();
+            const result = await forgotPasswordService(data.email);
+            if (result.error) {
+                setFormState((prev) => ({ ...prev, error: result.error || "Beklenmeyen bir hata oluştu" }));
+            } else {
+                onSuccess();
+            }
         } catch {
             setFormState((prev) => ({ ...prev, error: "Beklenmeyen bir hata oluştu" }));
         } finally {

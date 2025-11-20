@@ -1,63 +1,77 @@
 // Dosya: src/app/dashboard/account/page.tsx
 'use client';
 
-import React, { useEffect, useState } from 'react'; // 👈 useEffect ve useState eklendi
-import { useRouter } from 'next/navigation'; // 👈 Yönlendirme için eklendi
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"; // 👈 CardContent eklendi
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
-import { User, Shield, Bell, Paintbrush, LogOut, Loader2 } from 'lucide-react'; // 👈 LogOut ve Loader2 eklendi
+import { User, Shield, Bell, Paintbrush, LogOut, Loader2 } from 'lucide-react';
 import { BackgroundGradient } from "@/components/ui/background-gradient";
-import { Button } from '@/components/ui/button'; // 👈 Button eklendi
+import { Button } from '@/components/ui/button';
+import { getUserProfile, type UserProfile } from '@/lib/services/dashboardService';
+import { ProfileDialog } from './profile-dialog';
 
-const settingsOptions = [
-    {
-        title: "Profil Bilgileri",
-        description: "Kişisel bilgilerinizi ve profil resminizi güncelleyin.",
-        icon: <User className="w-6 h-6 text-primary" />,
-        action: () => console.log("Profil Bilgileri tıklandı"),
-    },
-    {
-        title: "Güvenlik Ayarları",
-        description: "Parolanızı değiştirin ve iki faktörlü kimlik doğrulamayı yönetin.",
-        icon: <Shield className="w-6 h-6 text-primary" />,
-        action: () => console.log("Güvenlik Ayarları tıklandı"),
-    },
-    {
-        title: "Bildirim Tercihleri",
-        description: "Hangi konularda bildirim almak istediğinizi seçin.",
-        icon: <Bell className="w-6 h-6 text-primary" />,
-        action: () => console.log("Bildirim Tercihleri tıklandı"),
-    },
-    {
-        title: "Görünüm ve Tema",
-        description: "Uygulama temasını (koyu/açık) ve renk paletini özelleştirin.",
-        icon: <Paintbrush className="w-6 h-6 text-primary" />,
-        action: () => console.log("Görünüm ve Tema tıklandı"),
-    },
-];
+
 
 
 export default function AccountPage() {
-    // --- YENİ EKLENDİ: Yetkilendirme Kontrolü ---
     const [isLoading, setIsLoading] = useState(true);
+    const [profile, setProfile] = useState<UserProfile | null>(null);
+    const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-            router.push('/login');
-        } else {
-            // Token var, sayfayı yükle
-            setIsLoading(false);
-        }
+        const checkAuthAndFetchProfile = async () => {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                router.push('/login');
+                return;
+            }
+
+            try {
+                const profileData = await getUserProfile();
+                setProfile(profileData);
+            } catch (error) {
+                console.error('Failed to fetch profile:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        checkAuthAndFetchProfile();
     }, [router]);
 
-    // Çıkış yap fonksiyonu
     const handleLogout = () => {
         localStorage.removeItem('authToken');
         router.push('/login');
     };
-    // --- YENİ EKLENDİ BİTİŞ ---
+
+    const settingsOptions = [
+        {
+            title: "Profil Bilgileri",
+            description: "Kişisel bilgilerinizi ve profil resminizi güncelleyin.",
+            icon: <User className="w-6 h-6 text-primary" />,
+            action: () => setIsProfileDialogOpen(true),
+        },
+        {
+            title: "Güvenlik Ayarları",
+            description: "Parolanızı değiştirin ve iki faktörlü kimlik doğrulamayı yönetin.",
+            icon: <Shield className="w-6 h-6 text-primary" />,
+            action: () => console.log("Güvenlik Ayarları tıklandı"),
+        },
+        {
+            title: "Bildirim Tercihleri",
+            description: "Hangi konularda bildirim almak istediğinizi seçin.",
+            icon: <Bell className="w-6 h-6 text-primary" />,
+            action: () => console.log("Bildirim Tercihleri tıklandı"),
+        },
+        {
+            title: "Görünüm ve Tema",
+            description: "Uygulama temasını (koyu/açık) ve renk paletini özelleştirin.",
+            icon: <Paintbrush className="w-6 h-6 text-primary" />,
+            action: () => console.log("Görünüm ve Tema tıklandı"),
+        },
+    ];
 
     // Yüklenme durumu (token kontrol edilirken)
     if (isLoading) {
@@ -105,7 +119,13 @@ export default function AccountPage() {
                             </Button>
                         </CardContent>
                     </Card>
-                    {/* YENİ EKLENDİ BİTİŞ */}
+
+                    {/* Profile Dialog */}
+                    <ProfileDialog
+                        isOpen={isProfileDialogOpen}
+                        onClose={() => setIsProfileDialogOpen(false)}
+                        initialData={profile}
+                    />
 
                 </div>
             </main>

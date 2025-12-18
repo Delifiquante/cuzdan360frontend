@@ -12,6 +12,7 @@ import { getUserProfile, type UserProfile } from '@/lib/services/dashboardServic
 import { ProfileDialog } from './profile-dialog';
 import { SecurityDialog } from './security-dialog';
 import { NotificationDialog } from './notification-dialog';
+import { AppearanceDialog } from './appearance-dialog';
 
 
 export default function AccountPage() {
@@ -20,6 +21,7 @@ export default function AccountPage() {
     const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
     const [isSecurityDialogOpen, setIsSecurityDialogOpen] = useState(false);
     const [isNotificationDialogOpen, setIsNotificationDialogOpen] = useState(false);
+    const [isAppearanceDialogOpen, setIsAppearanceDialogOpen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -71,7 +73,7 @@ export default function AccountPage() {
             title: "Görünüm ve Tema",
             description: "Uygulama temasını (koyu/açık) ve renk paletini özelleştirin.",
             icon: <Paintbrush className="w-6 h-6 text-primary" />,
-            action: () => console.log("Görünüm ve Tema tıklandı"),
+            action: () => setIsAppearanceDialogOpen(true),
         },
     ];
 
@@ -139,6 +141,12 @@ export default function AccountPage() {
                     <NotificationDialog
                         isOpen={isNotificationDialogOpen}
                         onClose={() => setIsNotificationDialogOpen(false)}
+                    />
+
+                    {/* Appearance Dialog */}
+                    <AppearanceDialog
+                        isOpen={isAppearanceDialogOpen}
+                        onClose={() => setIsAppearanceDialogOpen(false)}
                     />
 
                 </div>

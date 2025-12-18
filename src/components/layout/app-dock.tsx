@@ -6,7 +6,6 @@ import {
   ArrowLeftRight,
   CandlestickChart,
   FileText,
-  FileUp,
   Landmark,
   LayoutDashboard,
   User,
@@ -48,11 +47,6 @@ export function AppDock() {
       icon: <CandlestickChart className="text-primary" />,
     },
     {
-      onClick: () => router.push("/dashboard/upload"),
-      label: "Dosya Yükleme",
-      icon: <FileUp className="text-primary" />,
-    },
-    {
       onClick: () => router.push('/dashboard/account'),
       label: 'Hesap',
       icon: <User className="text-primary" />,
@@ -61,7 +55,7 @@ export function AppDock() {
 
   return (
     <div className="fixed h-screen flex items-center z-50">
-        <Dock items={menuItems} />
+      <Dock items={menuItems} />
     </div>
   );
 }

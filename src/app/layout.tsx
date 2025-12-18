@@ -5,6 +5,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { usePathname } from 'next/navigation';
 import { MainNavbar } from '@/components/layout/main-navbar';
+import { ThemeProvider } from '@/components/providers/theme-provider';
 
 export default function RootLayout({
   children,
@@ -20,7 +21,7 @@ export default function RootLayout({
   }
 
   return (
-    <html lang="tr" className="dark">
+    <html lang="tr" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -34,8 +35,15 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased bg-background">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
           <main>{children}</main>
           <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

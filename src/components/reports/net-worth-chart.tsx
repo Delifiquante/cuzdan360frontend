@@ -17,7 +17,7 @@ const chartConfig = {
 
 export function NetWorthChart() {
   return (
-    <div className="h-[300px] w-full">
+    <div className="h-[400px] w-full">
       <ChartContainer config={chartConfig} className="h-full w-full">
         <AreaChart
           accessibilityLayer
@@ -25,9 +25,16 @@ export function NetWorthChart() {
           margin={{
             left: 12,
             right: 12,
+            top: 12,
+            bottom: 12,
           }}
         >
-          <CartesianGrid vertical={false} />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            vertical={true}
+            horizontal={true}
+            opacity={0.3}
+          />
           <XAxis
             dataKey="date"
             tickLine={false}
@@ -41,7 +48,13 @@ export function NetWorthChart() {
             tickMargin={8}
             tickFormatter={(value) => `${Number(value) / 1000}k ₺`}
           />
-          <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+          <ChartTooltip
+            cursor={{ stroke: 'hsl(var(--chart-1))', strokeWidth: 2, strokeDasharray: '5 5' }}
+            content={<ChartTooltipContent
+              indicator="dot"
+              labelFormatter={(value) => `Tarih: ${value}`}
+            />}
+          />
           <defs>
             <linearGradient id="fillNetWorth" x1="0" y1="0" x2="0" y2="1">
               <stop
@@ -58,11 +71,14 @@ export function NetWorthChart() {
           </defs>
           <Area
             dataKey="netWorth"
-            type="natural"
+            type="monotone"
             fill="url(#fillNetWorth)"
             fillOpacity={0.4}
             stroke="var(--color-netWorth)"
-            stackId="a"
+            strokeWidth={2}
+            isAnimationActive={true}
+            animationDuration={1000}
+            animationEasing="ease-in-out"
           />
         </AreaChart>
       </ChartContainer>

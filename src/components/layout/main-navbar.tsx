@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Navbar,
   NavBody,
@@ -12,6 +12,9 @@ import {
   MobileNavMenu,
 } from '@/components/ui/resizable-navbar';
 import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
+import { useTheme } from 'next-themes';
+import { Moon, Sun } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export function MainNavbar() {
   const navItems = [
@@ -34,6 +37,20 @@ export function MainNavbar() {
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const toggleTheme = () => {
+    console.log('Current theme:', theme);
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    console.log('Switching to:', newTheme);
+    setTheme(newTheme);
+  };
 
   return (
     <div className="relative w-full">
@@ -43,6 +60,21 @@ export function MainNavbar() {
           <NavbarLogo />
           <NavItems items={navItems} />
           <div className="flex items-center gap-4">
+            {mounted && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleTheme}
+                className="rounded-full relative z-50 cursor-pointer hover:bg-accent transition-colors pointer-events-auto"
+                aria-label="Tema Değiştir"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="h-5 w-5 transition-transform hover:rotate-12" />
+                ) : (
+                  <Moon className="h-5 w-5 transition-transform hover:rotate-12" />
+                )}
+              </Button>
+            )}
             <HoverBorderGradient
               containerClassName="rounded-full"
               as="button"
@@ -58,10 +90,27 @@ export function MainNavbar() {
         <MobileNav>
           <MobileNavHeader>
             <NavbarLogo />
-            <MobileNavToggle
-              isOpen={isMobileMenuOpen}
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            />
+            <div className="flex items-center gap-2">
+              {mounted && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleTheme}
+                  className="rounded-full relative z-50 cursor-pointer hover:bg-accent transition-colors pointer-events-auto"
+                  aria-label="Tema Değiştir"
+                >
+                  {theme === 'dark' ? (
+                    <Sun className="h-5 w-5 transition-transform hover:rotate-12" />
+                  ) : (
+                    <Moon className="h-5 w-5 transition-transform hover:rotate-12" />
+                  )}
+                </Button>
+              )}
+              <MobileNavToggle
+                isOpen={isMobileMenuOpen}
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              />
+            </div>
           </MobileNavHeader>
 
           <MobileNavMenu

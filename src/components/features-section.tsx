@@ -63,13 +63,13 @@ export function FeaturesSection() {
         >
             <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 {/* Başlık ve Alt Başlık */}
-                <div className="mx-auto mb-16 max-w-4xl text-center">
+                <div className="mx-auto mb-16 max-w-4xl text-center flex flex-col items-center justify-center">
                     <BlurText
                         text="Finansal Yönetimin Yeni Yolu"
                         delay={100}
                         animateBy="words"
                         direction="top"
-                        className="text-4xl mx-auto font-bold tracking-tight text-white sm:text-5xl lg:text-6xl"
+                        className="text-4xl mx-auto font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl text-center"
                     />
                     <p className="mt-6 text-xl leading-8 text-neutral-400">
                         Cüzdan360, finansa karmaşık ve dağınık bir sorun olmaktan çıkarıp,
@@ -93,13 +93,13 @@ export function FeaturesSection() {
                   çünkü bir önceki adımda düzelttiğimiz 'glowing-effect.tsx' 
                   dosyasındaki varsayılan değerleri kullanması yeterli.
                 */}
-           
+
                                 {/* Kart İçeriği */}
                                 <div className="relative z-10 flex h-full flex-col">
                                     <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand/10">
                                         {feature.icon}
                                     </div>
-                                    <h3 className="mb-2 text-2xl font-semibold text-white">
+                                    <h3 className="mb-2 text-2xl font-semibold text-foreground">
                                         {feature.title}
                                     </h3>
                                     <p className="flex-1 text-base text-neutral-400">

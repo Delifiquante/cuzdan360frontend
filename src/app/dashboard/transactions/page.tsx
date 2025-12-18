@@ -20,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton'; // 👈 Yüklenme durumu için
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; // 👈 Hata durumu için
+import { FileUpload } from "@/components/upload/file-upload"; // 👈 Dosya yükleme bileşeni
 
 // === 1. DEĞİŞİKLİK: STATİK VERİ SİLİNDİ, SERVİSLER EKLENDİ ===
 // import { transactions as initialTransactions } from "@/lib/data"; // 👈 SİLİNDİ
@@ -228,182 +229,190 @@ export default function TransactionsPage() {
     return (
         <>
             <PageHeader title="İşlemler" />
-            <main className="p-4 md:p-6 grid gap-6 md:grid-cols-3">
+            <main className="p-4 md:p-6 space-y-6">
 
-                {/* Sol Taraf: Yeni İşlem Formu */}
-                <div className="md:col-span-1">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Yeni İşlem Ekle</CardTitle>
-                            <CardDescription>Gelir veya giderlerinizi kaydedin.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {/* Form verisi yükleniyorsa iskelet göster */}
-                            {isLoading ? (
-                                <FormSkeleton />
-                            ) : (
-                                <Form {...form}>
-                                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                {/* Üst Satır: Yeni İşlem Ekle ve Dosya Yükleme Yan Yana */}
+                <div className="grid gap-6 md:grid-cols-2">
+                    {/* Sol: Yeni İşlem Formu */}
+                    <div>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Yeni İşlem Ekle</CardTitle>
+                                <CardDescription>Gelir veya giderlerinizi kaydedin.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                {/* Form verisi yükleniyorsa iskelet göster */}
+                                {isLoading ? (
+                                    <FormSkeleton />
+                                ) : (
+                                    <Form {...form}>
+                                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 
-                                        <FormField
-                                            control={form.control}
-                                            name="title" // 👈 DTO ile uyumlu
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Açıklama</FormLabel>
-                                                    <FormControl>
-                                                        <Input placeholder="Market alışverişi" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={form.control}
-                                            name="amount"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Tutar</FormLabel>
-                                                    <FormControl>
-                                                        <Input type="number" step="0.01" placeholder="0.00" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={form.control}
-                                            name="transactionType" // 👈 DTO ile uyumlu
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>İşlem Türü</FormLabel>
-                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormField
+                                                control={form.control}
+                                                name="title" // 👈 DTO ile uyumlu
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Açıklama</FormLabel>
                                                         <FormControl>
-                                                            <SelectTrigger>
-                                                                <SelectValue placeholder="Bir tür seçin" />
-                                                            </SelectTrigger>
+                                                            <Input placeholder="Market alışverişi" {...field} />
                                                         </FormControl>
-                                                        <SelectContent>
-                                                            <SelectItem value="1">Gider (-)</SelectItem>
-                                                            <SelectItem value="0">Gelir (+)</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
 
-                                        <FormField
-                                            control={form.control}
-                                            name="categoryId" // 👈 DTO ile uyumlu
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Kategori</FormLabel>
-                                                    {/* 👈 Veriyi 'categories' state'inden DİNAMİK al */}
-                                                    <Select onValueChange={(value) => field.onChange(Number(value))} value={field.value?.toString()}>
+                                            <FormField
+                                                control={form.control}
+                                                name="amount"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Tutar</FormLabel>
                                                         <FormControl>
-                                                            <SelectTrigger>
-                                                                <SelectValue placeholder="Bir kategori seçin" />
-                                                            </SelectTrigger>
+                                                            <Input type="number" step="0.01" placeholder="0.00" {...field} />
                                                         </FormControl>
-                                                        <SelectContent>
-                                                            {categories.map((cat) => (
-                                                                <SelectItem key={cat.categoryId} value={cat.categoryId.toString()}>
-                                                                    {cat.name}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
 
-                                        {/* 👈 YENİ FORM ALANI: KAYNAK (SOURCE) */}
-                                        <FormField
-                                            control={form.control}
-                                            name="sourceId"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Kaynak</FormLabel>
-                                                    <Select onValueChange={(value) => field.onChange(Number(value))} value={field.value?.toString()}>
+                                            <FormField
+                                                control={form.control}
+                                                name="transactionType" // 👈 DTO ile uyumlu
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>İşlem Türü</FormLabel>
+                                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger>
+                                                                    <SelectValue placeholder="Bir tür seçin" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                <SelectItem value="1">Gider (-)</SelectItem>
+                                                                <SelectItem value="0">Gelir (+)</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            <FormField
+                                                control={form.control}
+                                                name="categoryId" // 👈 DTO ile uyumlu
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Kategori</FormLabel>
+                                                        {/* 👈 Veriyi 'categories' state'inden DİNAMİK al */}
+                                                        <Select onValueChange={(value) => field.onChange(Number(value))} value={field.value?.toString()}>
+                                                            <FormControl>
+                                                                <SelectTrigger>
+                                                                    <SelectValue placeholder="Bir kategori seçin" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {categories.map((cat) => (
+                                                                    <SelectItem key={cat.categoryId} value={cat.categoryId.toString()}>
+                                                                        {cat.name}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            {/* 👈 YENİ FORM ALANI: KAYNAK (SOURCE) */}
+                                            <FormField
+                                                control={form.control}
+                                                name="sourceId"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Kaynak</FormLabel>
+                                                        <Select onValueChange={(value) => field.onChange(Number(value))} value={field.value?.toString()}>
+                                                            <FormControl>
+                                                                <SelectTrigger>
+                                                                    <SelectValue placeholder="Bir kaynak seçin" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {sources.map((src) => (
+                                                                    <SelectItem key={src.sourceId} value={src.sourceId.toString()}>
+                                                                        {src.sourceName}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            {/* 👈 YENİ FORM ALANI: VARLIK TİPİ (ASSET TYPE) */}
+                                            <FormField
+                                                control={form.control}
+                                                name="assetTypeId"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Varlık Tipi</FormLabel>
+                                                        <Select onValueChange={(value) => field.onChange(Number(value))} value={field.value?.toString()}>
+                                                            <FormControl>
+                                                                <SelectTrigger>
+                                                                    <SelectValue placeholder="Bir varlık tipi seçin" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {assetTypes.map((asset) => (
+                                                                    <SelectItem key={asset.assetTypeId} value={asset.assetTypeId.toString()}>
+                                                                        {asset.name} ({asset.code})
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            <FormField
+                                                control={form.control}
+                                                name="transactionDate" // 👈 DTO ile uyumlu
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Tarih</FormLabel>
                                                         <FormControl>
-                                                            <SelectTrigger>
-                                                                <SelectValue placeholder="Bir kaynak seçin" />
-                                                            </SelectTrigger>
+                                                            <Input type="date" {...field} />
                                                         </FormControl>
-                                                        <SelectContent>
-                                                            {sources.map((src) => (
-                                                                <SelectItem key={src.sourceId} value={src.sourceId.toString()}>
-                                                                    {src.sourceName}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
 
-                                        {/* 👈 YENİ FORM ALANI: VARLIK TİPİ (ASSET TYPE) */}
-                                        <FormField
-                                            control={form.control}
-                                            name="assetTypeId"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Varlık Tipi</FormLabel>
-                                                    <Select onValueChange={(value) => field.onChange(Number(value))} value={field.value?.toString()}>
-                                                        <FormControl>
-                                                            <SelectTrigger>
-                                                                <SelectValue placeholder="Bir varlık tipi seçin" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {assetTypes.map((asset) => (
-                                                                <SelectItem key={asset.assetTypeId} value={asset.assetTypeId.toString()}>
-                                                                    {asset.name} ({asset.code})
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
+                                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                                                {isSubmitting ? (
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                ) : (
+                                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                                )}
+                                                {isSubmitting ? "Ekleniyor..." : "İşlemi Ekle"}
+                                            </Button>
+                                        </form>
+                                    </Form>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
 
-                                        <FormField
-                                            control={form.control}
-                                            name="transactionDate" // 👈 DTO ile uyumlu
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Tarih</FormLabel>
-                                                    <FormControl>
-                                                        <Input type="date" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <Button type="submit" className="w-full" disabled={isSubmitting}>
-                                            {isSubmitting ? (
-                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            ) : (
-                                                <PlusCircle className="mr-2 h-4 w-4" />
-                                            )}
-                                            {isSubmitting ? "Ekleniyor..." : "İşlemi Ekle"}
-                                        </Button>
-                                    </form>
-                                </Form>
-                            )}
-                        </CardContent>
-                    </Card>
+                    {/* Sağ: Dosya Yükleme */}
+                    <div>
+                        <FileUpload />
+                    </div>
                 </div>
 
-                {/* Sağ Taraf: İşlem Listesi */}
-                <div className="md:col-span-2">
+                {/* Alt Satır: Tüm İşlemler - Tam Genişlik */}
+                <div>
                     <BackgroundGradient className="rounded-lg" animate={false}>
                         <Card>
                             <CardHeader>

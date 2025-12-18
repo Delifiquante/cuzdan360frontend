@@ -162,6 +162,29 @@ export const netWorthHistory: NetWorthDataPoint[] = [
   { date: 'May 24', netWorth: 242000 },
   { date: 'Haz 24', netWorth: 248000 },
   { date: 'Tem 24', netWorth: 250000 },
+  { date: 'Ağu 24', netWorth: 255000 },
+  { date: 'Eyl 24', netWorth: 258000 },
+  { date: 'Eki 24', netWorth: 262000 },
+  { date: 'Kas 24', netWorth: 268000 },
+  { date: 'Ara 24', netWorth: 275000 },
+];
+
+export const incomeVsExpenses = [
+  { month: 'Oca', income: 5200, expenses: 4800 },
+  { month: 'Şub', income: 5300, expenses: 5100 },
+  { month: 'Mar', income: 6500, expenses: 4800 },
+  { month: 'Nis', income: 5200, expenses: 5800 },
+  { month: 'May', income: 6800, expenses: 5200 },
+  { month: 'Haz', income: 5400, expenses: 4900 },
+];
+
+export const monthlySavings = [
+  { month: 'Oca', savings: 400 },
+  { month: 'Şub', savings: 200 },
+  { month: 'Mar', savings: 1700 },
+  { month: 'Nis', savings: -600 },
+  { month: 'May', savings: 1600 },
+  { month: 'Haz', savings: 500 },
 ];
 
 export const upcomingPayments: UpcomingPayment[] = [

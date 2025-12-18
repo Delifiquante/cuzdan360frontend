@@ -48,37 +48,37 @@ export default function Home() {
                 <section id="faq" className="py-20 sm:py-32">
                     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="mx-auto max-w-2xl text-center">
-                            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-white">
+                            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
                                 Sıkça Sorulan Sorular
                             </h2>
                         </div>
                         <div className="mt-12 mx-auto max-w-3xl">
                             <Accordion type="single" collapsible className="w-full">
                                 <AccordionItem value="item-1">
-                                    <AccordionTrigger className="text-white">
+                                    <AccordionTrigger className="text-foreground">
                                         Cüzdan360 nedir?
                                     </AccordionTrigger>
-                                    <AccordionContent className="text-neutral-300">
+                                    <AccordionContent className="text-muted-foreground">
                                         Cüzdan360, kişisel ve kurumsal finanslarınızı tek bir
                                         platformdan yönetmenizi sağlayan, bütçe planlaması, harcama
                                         takibi ve finansal analizler sunan bir web uygulamasıdır.
                                     </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="item-2">
-                                    <AccordionTrigger className="text-white">
+                                    <AccordionTrigger className="text-foreground">
                                         Verilerim güvende mi?
                                     </AccordionTrigger>
-                                    <AccordionContent className="text-neutral-300">
+                                    <AccordionContent className="text-muted-foreground">
                                         Evet, verilerinizin güvenliği bizim için en önemli
                                         önceliktir. Tüm verileriniz endüstri standardı şifreleme
                                         yöntemleriyle korunmaktadır.
                                     </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="item-3">
-                                    <AccordionTrigger className="text-white">
+                                    <AccordionTrigger className="text-foreground">
                                         Hangi planı seçmeliyim?
                                     </AccordionTrigger>
-                                    <AccordionContent className="text-neutral-300">
+                                    <AccordionContent className="text-muted-foreground">
                                         Başlangıç için "Ücretsiz" planımızı deneyebilirsiniz. Daha
                                         kapsamlı özellikler için "Bireysel" planımız en popüler
                                         seçenektir. İşletmeler için ise "KOBİ" planımız tüm
@@ -86,10 +86,10 @@ export default function Home() {
                                     </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="item-4">
-                                    <AccordionTrigger className="text-white">
+                                    <AccordionTrigger className="text-foreground">
                                         Mobil uygulamanız var mı?
                                     </AccordionTrigger>
-                                    <AccordionContent className="text-neutral-300">
+                                    <AccordionContent className="text-muted-foreground">
                                         Şu an için sadece web uygulaması olarak hizmet veriyoruz.
                                         Ancak mobil uygulamamız geliştirme aşamasındadır ve yakında
                                         kullanıma sunulacaktır.
@@ -105,10 +105,10 @@ export default function Home() {
                     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                             <div className="text-center md:text-left">
-                                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-white">
+                                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
                                     Finansal Özgürlüğe Adım Atın
                                 </h2>
-                                <p className="mt-6 text-lg text-neutral-300">
+                                <p className="mt-6 text-lg text-muted-foreground">
                                     Cüzdan360 ile paranızın kontrolünü elinize alın ve hedeflerinize
                                     daha hızlı ulaşın.
                                 </p>
@@ -142,13 +142,13 @@ export default function Home() {
                 {/* Footer */}
                 <footer className="border-t border-gray-700">
                     <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row sm:px-6 lg:px-8">
-                        <p className="text-sm text-neutral-400">
+                        <p className="text-sm text-muted-foreground">
                             &copy; {new Date().getFullYear()} Cüzdan360. Tüm hakları saklıdır.
                         </p>
                         <div className="flex gap-4">
                             <Link
                                 href="#"
-                                className="text-sm text-neutral-400 hover:text-white"
+                                className="text-sm text-muted-foreground hover:text-foreground"
                             >
                                 Gizlilik Politikası
                             </Link>

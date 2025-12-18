@@ -113,10 +113,10 @@ export function Pricing2() {
             {/* İçerik */}
             <div className="relative container z-10">
                 <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 text-center">
-                    <h2 className="text-pretty text-4xl font-bold lg:text-6xl">
+                    <h2 className="text-pretty text-4xl font-bold lg:text-6xl text-foreground">
                         Finansal Kontrol Sizin Elinizde
                     </h2>
-                    <p className="text-zinc-400 lg:text-xl">
+                    <p className="text-muted-foreground lg:text-xl">
                         Basit takipten, yapay zeka destekli analizlere kadar ihtiyacınız olan
                         her şey.
                     </p>
@@ -158,18 +158,18 @@ export function Pricing2() {
                                             <CardTitle
                                                 className={cn(
                                                     "text-2xl font-bold",
-                                                    plan.id === "pro" ? "text-primary" : "text-white"
+                                                    plan.id === "pro" ? "text-primary" : "text-foreground"
                                                 )}
                                             >
                                                 {plan.name}
                                             </CardTitle>
-                                            <CardDescription className="text-sm text-zinc-400">
+                                            <CardDescription className="text-sm text-muted-foreground">
                                                 {plan.description}
                                             </CardDescription>
-                                            <span className="text-4xl font-bold text-white">
-                        {plan.monthlyPrice}
-                      </span>
-                                            <p className="text-zinc-500">
+                                            <span className="text-4xl font-bold text-foreground">
+                                                {plan.monthlyPrice}
+                                            </span>
+                                            <p className="text-muted-foreground">
                                                 {plan.id !== "kurumsal" ? "Aylık" : "Teklif Alın"}
                                             </p>
                                         </CardHeader>
@@ -177,7 +177,7 @@ export function Pricing2() {
                                         <CardContent>
                                             <Separator className="mb-6 bg-border/50" />
                                             {plan.id === "pro" && (
-                                                <p className="mb-3 font-semibold text-zinc-200">
+                                                <p className="mb-3 font-semibold text-foreground">
                                                     Tüm Temel özellikler ve:
                                                 </p>
                                             )}
@@ -190,7 +190,7 @@ export function Pricing2() {
                                                 {plan.features.map((feature, index) => (
                                                     <li
                                                         key={index}
-                                                        className="flex items-center gap-2 text-zinc-200"
+                                                        className="flex items-center gap-2 text-foreground"
                                                     >
                                                         <CircleCheck className="size-4 text-primary" />
                                                         <span>{feature.text}</span>

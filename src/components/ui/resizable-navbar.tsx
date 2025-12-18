@@ -74,9 +74,9 @@ export const Navbar = ({ children, className }: NavbarProps) => {
       {React.Children.map(children, (child) =>
         React.isValidElement(child)
           ? React.cloneElement(
-              child as React.ReactElement<{ visible?: boolean }>,
-              { visible },
-            )
+            child as React.ReactElement<{ visible?: boolean }>,
+            { visible },
+          )
           : child,
       )}
     </motion.div>
@@ -234,12 +234,17 @@ export const NavbarLogo = () => {
       href="#"
       className="relative z-20 mr-4 flex items-center space-x-6 px-2 py-1 text-2xl font-normal text-black"
     >
-      <img
-        src="/czdn360logo.jpeg"
-        alt="logo"
-        width={50}
-        height={50}
-      />
+      <div className="relative">
+        {/* Dark circular background for light theme */}
+        <div className="absolute inset-0 -m-2 rounded-full bg-gray-800 dark:bg-transparent" />
+        <img
+          src="/czdn360logo.jpeg"
+          alt="logo"
+          width={50}
+          height={50}
+          className="relative z-10 rounded-full"
+        />
+      </div>
       <span className="font-medium text-black dark:text-white">Cüzdan360</span>
     </a>
   );
@@ -259,9 +264,9 @@ export const NavbarButton = ({
   className?: string;
   variant?: "primary" | "secondary" | "dark" | "gradient";
 } & (
-  | React.ComponentPropsWithoutRef<"a">
-  | React.ComponentPropsWithoutRef<"button">
-)) => {
+    | React.ComponentPropsWithoutRef<"a">
+    | React.ComponentPropsWithoutRef<"button">
+  )) => {
   const baseStyles =
     "px-4 py-2 rounded-md bg-white button bg-white text-black text-sm font-bold relative cursor-pointer hover:-translate-y-0.5 transition duration-200 inline-block text-center";
 

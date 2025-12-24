@@ -18,6 +18,9 @@ export interface CreateTransactionData {
     amount: number;
     title: string | null;
     transactionDate: string; // ISO 8601 formatında (örn: new Date().toISOString())
+    isRecurring?: boolean;
+    recurringDay?: number;
+    frequency?: number; // 0=Monthly, 1=Weekly
 }
 
 // Tüm işlemleri getir

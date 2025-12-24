@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { FileUpload } from "@/components/upload/file-upload";
+import { Checkbox } from "@/components/ui/checkbox"; // 👈 YENİ
 
 // === 1. DEĞİŞİKLİK: STATİK VERİ SİLİNDİ, SERVİSLER EKLENDİ ===
 import { getTransactions, createTransaction, updateTransaction, deleteTransaction, exportTransactions, CreateTransactionData } from '@/lib/services/transactionService'; // 👈 YENİ METODLAR EKLENDİ
@@ -39,6 +40,9 @@ const transactionSchema = z.object({
     sourceId: z.coerce.number({ required_error: "Kaynak zorunludur.", invalid_type_error: "Kaynak seçmelisiniz." }),
     assetTypeId: z.coerce.number({ required_error: "Varlık Tipi zorunludur.", invalid_type_error: "Varlık Tipi seçmelisiniz." }),
     transactionDate: z.string().min(10, "Tarih zorunludur."),
+    isRecurring: z.boolean().default(false).optional(),
+    frequency: z.coerce.number().optional(), // 0=Monthly, 1=Weekly
+    recurringDay: z.coerce.number().optional(),
 });
 // === DEĞİŞİKLİK SONU ===
 
@@ -102,6 +106,9 @@ export default function TransactionsPage() {
             sourceId: undefined,
             assetTypeId: undefined,
             transactionDate: new Date().toISOString().split('T')[0],
+            isRecurring: false,
+            frequency: 0, // Default Monthly
+            recurringDay: new Date().getDate(), // Default Today
         },
     });
     // === DEĞİŞİKLİK SONU ===
@@ -466,6 +473,91 @@ export default function TransactionsPage() {
                                                     </FormItem>
                                                 )}
                                             />
+
+                                            {/* 👈 YENİ: TEKRARLAYAN İŞLEM AYARLARI */}
+                                            <FormField
+                                                control={form.control}
+                                                name="isRecurring"
+                                                render={({ field }) => (
+                                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                                                        <FormControl>
+                                                            <Checkbox
+                                                                checked={field.value}
+                                                                onCheckedChange={field.onChange}
+                                                            />
+                                                        </FormControl>
+                                                        <div className="space-y-1 leading-none">
+                                                            <FormLabel>
+                                                                Bu işlem tekrarlansın mı?
+                                                            </FormLabel>
+                                                            <p className="text-sm text-muted-foreground">
+                                                                Her ay veya hafta otomatik olarak oluşturulur.
+                                                            </p>
+                                                        </div>
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            {form.watch("isRecurring") && (
+                                                <div className="flex gap-4">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="frequency"
+                                                        render={({ field }) => (
+                                                            <FormItem className="w-1/2">
+                                                                <FormLabel>Sıklık</FormLabel>
+                                                                <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
+                                                                    <FormControl>
+                                                                        <SelectTrigger>
+                                                                            <SelectValue placeholder="Sıklık Seç" />
+                                                                        </SelectTrigger>
+                                                                    </FormControl>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="0">Aylık</SelectItem>
+                                                                        <SelectItem value="1">Haftalık</SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />
+
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="recurringDay"
+                                                        render={({ field }) => (
+                                                            <FormItem className="w-1/2">
+                                                                <FormLabel>
+                                                                    {form.watch("frequency") === 1 ? "Gün (Pzt=1, Paz=7)" : "Ayın Günü (1-31)"}
+                                                                </FormLabel>
+                                                                <FormControl>
+                                                                    {form.watch("frequency") === 1 ? (
+                                                                        <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
+                                                                            <FormControl>
+                                                                                <SelectTrigger>
+                                                                                    <SelectValue placeholder="Gün Seç" />
+                                                                                </SelectTrigger>
+                                                                            </FormControl>
+                                                                            <SelectContent>
+                                                                                <SelectItem value="1">Pazartesi</SelectItem>
+                                                                                <SelectItem value="2">Salı</SelectItem>
+                                                                                <SelectItem value="3">Çarşamba</SelectItem>
+                                                                                <SelectItem value="4">Perşembe</SelectItem>
+                                                                                <SelectItem value="5">Cuma</SelectItem>
+                                                                                <SelectItem value="6">Cumartesi</SelectItem>
+                                                                                <SelectItem value="7">Pazar</SelectItem>
+                                                                            </SelectContent>
+                                                                        </Select>
+                                                                    ) : (
+                                                                        <Input type="number" min={1} max={31} {...field} />
+                                                                    )}
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                </div>
+                                            )}
 
                                             <Button type="submit" className="w-full" disabled={isSubmitting}>
                                                 {isSubmitting ? (

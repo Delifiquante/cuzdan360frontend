@@ -73,8 +73,9 @@ export async function fetchAuth(url: string, options: RequestInit = {}) {
     }
 
     if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || errorData.message || 'Bir hata oluştu');
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || errorData.message || 'Bir hata oluştu';
+        throw new Error(`${errorMessage} (Status: ${response.status}, URL: ${url})`);
     }
 
     // Bazı API çağrıları (örn. DELETE) boş yanıt dönebilir

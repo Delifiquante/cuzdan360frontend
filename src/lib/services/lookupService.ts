@@ -18,7 +18,7 @@ export async function getCategories(): Promise<Category[]> {
         return Promise.resolve(categories);
     }
     // Controller'daki yeni rotayı çağır
-    return fetchAuth('/api/Transactions/categories');
+    return fetchAuth('/api/Transaction/categories');
 }
 
 export async function getSources(): Promise<Source[]> {
@@ -27,7 +27,7 @@ export async function getSources(): Promise<Source[]> {
         return Promise.resolve(sources);
     }
     // Controller'daki yeni rotayı çağır
-    return fetchAuth('/api/Transactions/sources');
+    return fetchAuth('/api/Transaction/sources');
 }
 
 export async function getAssetTypes(): Promise<AssetType[]> {
@@ -36,5 +36,5 @@ export async function getAssetTypes(): Promise<AssetType[]> {
         return Promise.resolve(assetTypes);
     }
     // Controller'daki yeni rotayı çağır
-    return fetchAuth('/api/Transactions/asset-types');
+    return fetchAuth('/api/Transaction/asset-types');
 }

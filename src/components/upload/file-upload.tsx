@@ -1,13 +1,17 @@
 "use client";
 
 import { useState, MouseEvent, ChangeEvent, DragEvent } from "react";
-import { UploadCloud, File as FileIcon, X } from "lucide-react";
+import { UploadCloud, File as FileIcon, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { analyzeReceipt, bulkCreateTransactions } from "@/lib/services/transactionService";
 
 export function FileUpload() {
   const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const { toast } = useToast();
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -31,11 +35,40 @@ export function FileUpload() {
     setFile(null);
   };
 
-  const handleUpload = () => {
-    if (file) {
-      // Handle file upload logic here
-      console.log("Uploading file:", file.name);
-      alert(`'${file.name}' adlı dosya yükleniyor...`);
+  const handleUpload = async () => {
+    if (!file) return;
+
+    setIsUploading(true);
+
+    try {
+      // Adım 1: Servis üzerinden analiz et (Mock destekli)
+      const transactionsToCreate = await analyzeReceipt(file);
+
+      if (transactionsToCreate.length === 0) {
+        toast({
+          variant: "warning",
+          title: "Sonuç Yok",
+          description: "Belgeden herhangi bir işlem okunamadı.",
+        });
+        return;
+      }
+
+      // Adım 2: Bulk create ile kaydet (Mock destekli)
+      await bulkCreateTransactions(transactionsToCreate);
+
+      toast({
+        title: "Başarılı",
+        description: `${transactionsToCreate.length} adet işlem başarıyla oluşturuldu.`,
+      });
+      setFile(null);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "İşlem Başarısız",
+        description: error.message || "Dosya yüklenirken veya işlenirken bir sorun oluştu.",
+      });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -88,11 +121,18 @@ export function FileUpload() {
           )}
         </div>
         <div className="mt-6 flex justify-end gap-4">
-          <Button variant="outline" onClick={handleDelete} disabled={!file}>
+          <Button variant="outline" onClick={handleDelete} disabled={!file || isUploading}>
             Sil
           </Button>
-          <Button onClick={handleUpload} disabled={!file}>
-            Yükle
+          <Button onClick={handleUpload} disabled={!file || isUploading}>
+            {isUploading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Yükleniyor...
+              </>
+            ) : (
+              "Yükle"
+            )}
           </Button>
         </div>
       </CardContent>

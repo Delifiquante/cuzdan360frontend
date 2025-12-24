@@ -1,8 +1,7 @@
-// Dosya: src/lib/services/transactionService.ts
-
 import { fetchAuth } from '@/lib/api';
-import type { Transaction } from '@/lib/types';
+import type { Transaction, Category, Source, AssetType } from '@/lib/types';
 import { transactions } from '@/lib/data';
+import { getAssetTypes, getCategories, getSources } from './lookupService';
 
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
 const MOCK_DELAY = 500;
@@ -27,7 +26,33 @@ export async function getTransactions(): Promise<Transaction[]> {
         await delay(MOCK_DELAY);
         return Promise.resolve(transactions);
     }
-    return fetchAuth('/api/Transactions');
+
+    // Backend ilişkisel verileri (Category, Source vb.) dönmediği için
+    // onları ayrıca çekip burada birleştiriyoruz (Client-side mapping).
+    try {
+        const [transactionsData, categoriesData, sourcesData, assetTypesData] = await Promise.all([
+            fetchAuth('/api/Transaction'),
+            getCategories(),
+            getSources(),
+            getAssetTypes(),
+        ]);
+
+        if (!Array.isArray(transactionsData)) {
+            return [];
+        }
+
+        return transactionsData.map((t: any): Transaction => {
+            return {
+                ...t,
+                category: categoriesData.find((c: Category) => c.categoryId === t.categoryId) || { categoryId: t.categoryId, name: 'Bilinmiyor' },
+                source: sourcesData.find((s: Source) => s.sourceId === t.sourceId) || { sourceId: t.sourceId, sourceName: 'Bilinmiyor' },
+                assetType: assetTypesData.find((a: AssetType) => a.assetTypeId === t.assetTypeId) || { assetTypeId: t.assetTypeId, name: 'Bilinmiyor', code: '' },
+            };
+        });
+    } catch (error) {
+        console.error("Error fetching transactions or lookups:", error);
+        throw error;
+    }
 }
 
 // Tek bir işlemi getir
@@ -40,7 +65,7 @@ export async function getTransactionById(id: number): Promise<Transaction> {
         }
         return Promise.resolve(transaction);
     }
-    return fetchAuth(`/api/Transactions/${id}`);
+    return fetchAuth(`/api/Transaction/${id}`);
 }
 
 // Yeni işlem oluştur
@@ -76,8 +101,11 @@ export async function createTransaction(data: CreateTransactionData): Promise<Tr
         transactions.push(newTransaction);
         return Promise.resolve(newTransaction);
     }
-    return fetchAuth('/api/Transactions', {
+    return fetchAuth('/api/Transaction', {
         method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
         body: JSON.stringify(data),
     });
 }
@@ -95,8 +123,11 @@ export async function updateTransaction(id: number, data: CreateTransactionData)
         }
         return Promise.resolve();
     }
-    return fetchAuth(`/api/Transactions/${id}`, {
+    return fetchAuth(`/api/Transaction/${id}`, {
         method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
         body: JSON.stringify(data),
     });
 }
@@ -111,7 +142,74 @@ export async function deleteTransaction(id: number): Promise<void> {
         }
         return Promise.resolve();
     }
-    return fetchAuth(`/api/Transactions/${id}`, {
+    return fetchAuth(`/api/Transaction/${id}`, {
         method: 'DELETE',
     });
+}
+
+// Toplu işlem oluştur
+export async function bulkCreateTransactions(transactions: CreateTransactionData[]): Promise<void> {
+    if (USE_MOCK) {
+        await delay(MOCK_DELAY);
+        // Mock implementation
+        transactions.forEach(data => {
+            const newId = Math.max(...(transactions as any[]).map(t => t.transactionId || 0), 0) + 1;
+            // ... push to mock data
+        });
+        return Promise.resolve();
+    }
+
+    return fetchAuth('/api/Transaction/bulk-create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ transactions }),
+    });
+}
+
+// Fiş analizi yap
+export async function analyzeReceipt(file: File): Promise<CreateTransactionData[]> {
+    if (USE_MOCK) {
+        await delay(3000); // 3 saniye bekle (loading bar'ı görmek için)
+        // Mock data döndür
+        return Promise.resolve([
+            {
+                assetTypeId: 1,
+                categoryId: 1,
+                sourceId: 1,
+                transactionType: 1,
+                amount: 150.0,
+                title: 'Mock Fiş Testi',
+                transactionDate: new Date().toISOString()
+            },
+            {
+                assetTypeId: 1,
+                categoryId: 3,
+                sourceId: 1,
+                transactionType: 1,
+                amount: 45.90,
+                title: 'Mock Kahve',
+                transactionDate: new Date().toISOString()
+            }
+        ]);
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetchAuth("/api/Transaction/analyze-receipt", {
+        method: "POST",
+        body: formData,
+    });
+
+    // Response wrapper kontrolü
+    if (response && response.transactions) {
+        return response.transactions;
+    }
+    if (Array.isArray(response)) {
+        return response;
+    }
+
+    throw new Error("Beklenmeyen analiz sonucu formatı.");
 }

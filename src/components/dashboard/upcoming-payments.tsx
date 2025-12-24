@@ -6,9 +6,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { upcomingPayments } from "@/lib/data";
+import type { UpcomingPaymentDto } from "@/lib/types";
 
-export function UpcomingPayments() {
+interface UpcomingPaymentsProps {
+  payments: UpcomingPaymentDto[];
+}
+
+export function UpcomingPayments({ payments }: UpcomingPaymentsProps) {
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat('tr-TR', {
       style: 'currency',
@@ -24,6 +28,10 @@ export function UpcomingPayments() {
     }).format(date);
   };
 
+  if (!payments || payments.length === 0) {
+    return <div className="p-4 text-center text-muted-foreground">Yaklaşan ödeme yok.</div>;
+  }
+
   return (
     <Table>
       <TableHeader>
@@ -34,13 +42,13 @@ export function UpcomingPayments() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {upcomingPayments
-          .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-          .map((payment) => (
-            <TableRow key={payment.id}>
-              <TableCell className="font-medium">{payment.name}</TableCell>
+        {payments
+          .sort((a, b) => new Date(a.nextPaymentDate).getTime() - new Date(b.nextPaymentDate).getTime())
+          .map((payment, index) => (
+            <TableRow key={index}>
+              <TableCell className="font-medium">{payment.title}</TableCell>
               <TableCell className="text-muted-foreground">
-                {formatDate(payment.dueDate)}
+                {formatDate(payment.nextPaymentDate)}
               </TableCell>
               <TableCell className="text-right font-medium">
                 {formatCurrency(payment.amount)}

@@ -6,21 +6,35 @@ import {
     ChartContainer,
     ChartTooltip,
     ChartTooltipContent,
+    type ChartConfig
 } from "@/components/ui/chart";
-import { assetAllocation as chartData } from "@/lib/data";
+import type { ChartDataPoint } from "@/lib/types";
 
-const chartConfig = {
-    value: {
-        label: "Value",
-    },
-    ...Object.fromEntries(chartData.map(d => [d.name.toLowerCase(), { label: d.name }])),
-};
+interface AssetAllocationChartProps {
+    data: ChartDataPoint[];
+}
 
-export function AssetAllocationChart() {
+export function AssetAllocationChart({ data }: AssetAllocationChartProps) {
+    // Generate colors dynamically if not present, or use css vars
+    const chartData = data?.map((d, index) => ({
+        ...d,
+        fill: d.fill || `hsl(var(--chart-${(index % 5) + 1}))`
+    })) || [];
+
+    const chartConfig = {
+        value: {
+            label: "Value",
+        },
+        ...Object.fromEntries(chartData.map(d => [d.label.toLowerCase(), { label: d.label }])),
+    } satisfies ChartConfig;
+
+    if (chartData.length === 0) {
+        return <div className="flex items-center justify-center h-[350px] text-muted-foreground">Veri yok.</div>;
+    }
+
     return (
         <ChartContainer
             config={chartConfig}
-            // 🚨 DÜZELTME: Sabit piksel boyutu kaldırıldı, esnek boyut eklendi
             className="h-[350px] w-full"
         >
             <PieChart>
@@ -31,7 +45,7 @@ export function AssetAllocationChart() {
                 <Pie
                     data={chartData}
                     dataKey="value"
-                    nameKey="name"
+                    nameKey="label"
                     innerRadius={50}
                     strokeWidth={5}
                 >

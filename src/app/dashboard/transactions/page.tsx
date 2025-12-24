@@ -6,25 +6,25 @@ import { useRouter } from 'next/navigation';
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, PlusCircle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast"; // 👈 Hata/başarı mesajları için
+import { Download, Loader2, PlusCircle } from "lucide-react"; // 👈 Icon eklendi
+import { useToast } from "@/hooks/use-toast";
 
 // Bileşenler
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
 import { TransactionsTable } from "@/components/transactions/transactions-table";
+import { EditTransactionDialog } from "@/components/transactions/edit-transaction-dialog"; // 👈 YENİ
 import { BackgroundGradient } from '@/components/ui/background-gradient';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton'; // 👈 Yüklenme durumu için
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; // 👈 Hata durumu için
-import { FileUpload } from "@/components/upload/file-upload"; // 👈 Dosya yükleme bileşeni
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { FileUpload } from "@/components/upload/file-upload";
 
 // === 1. DEĞİŞİKLİK: STATİK VERİ SİLİNDİ, SERVİSLER EKLENDİ ===
-// import { transactions as initialTransactions } from "@/lib/data"; // 👈 SİLİNDİ
-import { getTransactions, createTransaction } from '@/lib/services/transactionService';
+import { getTransactions, createTransaction, updateTransaction, deleteTransaction, exportTransactions, CreateTransactionData } from '@/lib/services/transactionService'; // 👈 YENİ METODLAR EKLENDİ
 import { getCategories, getSources, getAssetTypes } from '@/lib/services/lookupService';
 import type { Transaction, Category, Source, AssetType } from "@/lib/types";
 // === DEĞİŞİKLİK SONU ===
@@ -192,6 +192,77 @@ export default function TransactionsPage() {
     };
     // === DEĞİŞİKLİK SONU ===
 
+    // === YENİ: Edit ve Delete İşlemleri ===
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+
+    const handleEditClick = (transaction: Transaction) => {
+        setEditingTransaction(transaction);
+        setIsEditDialogOpen(true);
+    };
+
+    const handleDeleteClick = async (id: number) => {
+        if (!confirm("Bu işlemi silmek istediğinize emin misiniz?")) return;
+
+        try {
+            await deleteTransaction(id);
+            // Listeden çıkar
+            setTransactions(prev => prev.filter(t => t.transactionId !== id));
+            toast({
+                title: "Silindi",
+                description: "İşlem başarıyla silindi.",
+            });
+        } catch (err: any) {
+            toast({
+                variant: "destructive",
+                title: "Hata",
+                description: "Silme işlemi başarısız.",
+            });
+        }
+    };
+
+    const handleUpdateTransaction = async (id: number, data: CreateTransactionData) => {
+        try {
+            await updateTransaction(id, data);
+
+            // Listeyi yerel olarak güncelle (Tekrar fetch etmek yerine)
+            // Ancak ilişkisel verileri (Category name vb.) tekrar eşleştirmemiz gerekecek.
+            // En temizi listeyi tekrar çekmek veya manuel güncellemek.
+            // Manuel güncelleme yapalım:
+            setTransactions(prev => prev.map(t => {
+                if (t.transactionId === id) {
+                    const category = categories.find(c => c.categoryId === data.categoryId);
+                    const source = sources.find(s => s.sourceId === data.sourceId);
+                    const assetType = assetTypes.find(a => a.assetTypeId === data.assetTypeId);
+
+                    return {
+                        ...t,
+                        ...data,
+                        amount: data.amount,
+                        transactionType: data.transactionType, // Enum uyumu
+                        category: category || t.category,
+                        source: source || t.source,
+                        assetType: assetType || t.assetType,
+                    };
+                }
+                return t;
+            }));
+
+            toast({
+                title: "Güncellendi",
+                description: "İşlem başarıyla güncellendi.",
+            });
+
+        } catch (err: any) {
+            toast({
+                variant: "destructive",
+                title: "Hata",
+                description: "Güncelleme işlemi başarısız.",
+            });
+            throw err; // Dialog kapatılmasın diye throw ediyoruz (veya handle ediyoruz)
+        }
+    };
+
     // Yüklenme, Hata veya İçerik durumuna göre tabloyu render et
     const renderTableContent = () => {
         if (isLoading) {
@@ -214,7 +285,13 @@ export default function TransactionsPage() {
             );
         }
 
-        return <TransactionsTable transactions={transactions} />;
+        return (
+            <TransactionsTable
+                transactions={transactions}
+                onEdit={handleEditClick}
+                onDelete={handleDeleteClick}
+            />
+        );
     };
 
     // Ana yüklenme (token kontrolü vs.)
@@ -415,8 +492,12 @@ export default function TransactionsPage() {
                 <div>
                     <BackgroundGradient className="rounded-lg" animate={false}>
                         <Card>
-                            <CardHeader>
+                            <CardHeader className="flex flex-row items-center justify-between">
                                 <CardTitle>Tüm İşlemler</CardTitle>
+                                <Button variant="outline" size="sm" onClick={() => exportTransactions()}>
+                                    <Download className="mr-2 h-4 w-4" />
+                                    Dışa Aktar
+                                </Button>
                             </CardHeader>
                             <CardContent>
                                 {renderTableContent()}
@@ -425,6 +506,16 @@ export default function TransactionsPage() {
                     </BackgroundGradient>
                 </div>
             </main>
+
+            <EditTransactionDialog
+                open={isEditDialogOpen}
+                onOpenChange={setIsEditDialogOpen}
+                transaction={editingTransaction}
+                onSubmit={handleUpdateTransaction}
+                categories={categories}
+                sources={sources}
+                assetTypes={assetTypes}
+            />
         </>
     );
 }

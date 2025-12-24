@@ -85,3 +85,47 @@ export interface CurrencyRate {
     rate: number;
     change: number;
 }
+
+// --- Dashboard Summary Types (Matching Backend DTOs) ---
+export interface ChartDataPoint {
+    label: string;
+    value: number;
+    percentage: number;
+    fill?: string; // Optional for frontend charting
+}
+
+export interface CategoryExpense {
+    categoryName: string;
+    amount: number;
+}
+
+export interface MonthlyTrend {
+    month: string;
+    year: number;
+    totalIncome: number;
+    totalExpense: number;
+}
+
+export interface SourceFlow {
+    sourceName: string;
+    netFlow: number;
+}
+
+export interface UpcomingPaymentDto {
+    title: string;
+    amount: number;
+    nextPaymentDate: string; // DateTime ISO string
+    daysRemaining: number;
+}
+
+export interface DashboardSummary {
+    totalNetWorth: number;
+    monthlyIncome: number;
+    monthlyExpense: number;
+    netWorthDistribution: ChartDataPoint[];
+    topCategories: CategoryExpense[];
+    last6MonthsTrend: MonthlyTrend[];
+    sourceFlows: SourceFlow[];
+    upcomingPayments: UpcomingPaymentDto[];
+    recentTransactions: Transaction[]; // Re-using existing Transaction interface
+}

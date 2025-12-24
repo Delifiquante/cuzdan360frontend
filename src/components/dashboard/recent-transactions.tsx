@@ -7,18 +7,30 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { transactions } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import { TransactionType } from "@/lib/types";
+import { TransactionType, type Transaction } from "@/lib/types";
 
-export function RecentTransactions() {
-  const recentTransactions = transactions.slice(0, 5);
+// Backend DTO might return flattened fields instead of nested objects
+interface TransactionDto extends Omit<Transaction, 'category' | 'source' | 'assetType'> {
+  categoryName?: string;
+  sourceName?: string;
+  category?: { name: string }; // Compatible if mapped
+}
 
+interface RecentTransactionsProps {
+  transactions: TransactionDto[] | Transaction[];
+}
+
+export function RecentTransactions({ transactions }: RecentTransactionsProps) {
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat('tr-TR', {
       style: 'currency',
       currency: 'TRY',
     }).format(value);
+
+  if (!transactions || transactions.length === 0) {
+    return <div className="p-4 text-center text-muted-foreground">İşlem bulunamadı.</div>;
+  }
 
   return (
     <Table>
@@ -30,7 +42,7 @@ export function RecentTransactions() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {recentTransactions.map((transaction) => (
+        {transactions.map((transaction) => (
           <TableRow key={transaction.transactionId} className="h-16">
             <TableCell>
               <div className="font-medium">{transaction.title || 'İşlem'}</div>
@@ -39,7 +51,7 @@ export function RecentTransactions() {
               </div>
             </TableCell>
             <TableCell>
-              <Badge variant="outline">{transaction.category.name}</Badge>
+              <Badge variant="outline">{(transaction as any).category?.name || (transaction as any).categoryName || 'Diğer'}</Badge>
             </TableCell>
             <TableCell
               className={cn(

@@ -16,7 +16,7 @@ import {
   CreditCard,
   Wallet,
 } from 'lucide-react';
-import { netWorth, cashFlow, totalAssets, totalDebts } from '@/lib/data';
+import type { DashboardSummary } from '@/lib/types';
 import { BackgroundGradient } from '../ui/background-gradient';
 
 const formatCurrency = (value: number) =>
@@ -28,48 +28,58 @@ const formatCurrency = (value: number) =>
   }).format(value);
 
 interface OverviewCardsProps {
-  netWorth: number;
+  summary: DashboardSummary | null;
 }
 
-export function OverviewCards({ netWorth }: OverviewCardsProps) {
+export function OverviewCards({ summary }: OverviewCardsProps) {
+  // Hesaplanan değerler (API'den gelmiyorsa türetilir)
+  const netWorth = summary?.totalNetWorth || 0;
+  const cashFlow = (summary?.monthlyIncome || 0) - (summary?.monthlyExpense || 0);
+
+  // Şimdilik Total Assets/Debts API'de yoksa NetWorth üzerinden tahmini veya 0 gösterelim
+  // Backend'e eklemek en iyisi ama şimdilik summary'den geleni kullanacağız.
+  // DashboardSummaryDto'da bu alanlar yoktu (TotalNetWorth var).
+  // TotalAssets ve TotalDebts için backend güncellemesi gerekebilir ama şimdilik
+  // NetWorth pozitif ise Asset kabul edelim.
+  const totalAssets = netWorth > 0 ? netWorth : 0;
+  const totalDebts = 0; // Backend dnerse ekleriz
+
   const overviewData = [
     {
       id: 'net-worth',
       title: 'Net Değer',
       value: netWorth,
       icon: Wallet,
-      footer: <p className="text-xs text-muted-foreground">geçen aydan +%2.1</p>,
+      footer: <p className="text-xs text-muted-foreground">Güncel Bakiye</p>,
     },
     {
       id: 'cash-flow',
-      title: 'Nakit Akışı',
+      title: 'Nakit Akışı (Bu Ay)',
       value: cashFlow,
       icon: Banknote,
-      footer: <p className="text-xs text-muted-foreground">Bu ay</p>,
+      footer: <p className="text-xs text-muted-foreground">Gelir - Gider</p>,
     },
     {
-      id: 'total-assets',
-      title: 'Toplam Varlıklar',
-      value: totalAssets,
+      id: 'monthly-income', // Total Assets yerine Gelir koyalım daha anlamlı API verisiyle
+      title: 'Bu Ay Gelir',
+      value: summary?.monthlyIncome || 0,
       icon: CircleDollarSign,
       footer: (
         <div className="flex items-center text-xs text-muted-foreground">
           <ArrowUp className="h-3 w-3 text-primary" />
-          <span className="text-primary ml-1">%5.2</span>
-          <span>&nbsp;bu çeyrek</span>
+          <span className="text-primary ml-1">Girişler</span>
         </div>
       ),
     },
     {
-      id: 'total-debts',
-      title: 'Toplam Borçlar',
-      value: totalDebts,
+      id: 'monthly-expense', // Total Debts yerine Gider koyalım
+      title: 'Bu Ay Gider',
+      value: summary?.monthlyExpense || 0,
       icon: CreditCard,
       footer: (
         <div className="flex items-center text-xs text-muted-foreground">
           <ArrowDown className="h-3 w-3 text-destructive" />
-          <span className="text-destructive ml-1">%1.8</span>
-          <span>&nbsp;bu çeyrek</span>
+          <span className="text-destructive ml-1">Çıkışlar</span>
         </div>
       ),
     },

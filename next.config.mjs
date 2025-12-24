@@ -7,6 +7,10 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  env: {
+    NEXT_PUBLIC_API_BASE_URL: 'http://localhost:5000',
+    NEXT_PUBLIC_USE_MOCK_API: 'false',
+  },
   images: {
     remotePatterns: [
       {

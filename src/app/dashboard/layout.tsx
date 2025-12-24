@@ -1,5 +1,5 @@
-import {Toaster} from "@/components/ui/toaster";
-import {AppDock} from "@/components/layout/app-dock";
+import { Toaster } from "@/components/ui/toaster";
+import { AppDock } from "@/components/layout/app-dock";
 
 export default function Layout({ children }) {
     return (

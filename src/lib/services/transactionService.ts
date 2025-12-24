@@ -213,3 +213,38 @@ export async function analyzeReceipt(file: File): Promise<CreateTransactionData[
 
     throw new Error("Beklenmeyen analiz sonucu formatı.");
 }
+
+// İşlemleri excel olarak dışa aktar
+export async function exportTransactions(): Promise<void> {
+    if (USE_MOCK) {
+        await delay(MOCK_DELAY);
+        alert("Mock modunda dışa aktarma simüle edildi. Konsola bakınız.");
+        console.log("Mock Export: Transactions exported.");
+        return Promise.resolve();
+    }
+
+    // GÜVENLİ YÖNTEM: Token'ı alıp manuel fetch yapalım.
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+
+    const res = await fetch(`${apiBaseUrl}/api/Transaction/export`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (!res.ok) {
+        throw new Error("Dışa aktarma başarısız oldu.");
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `transactions-${new Date().toISOString().split('T')[0]}.xlsx`; // Varsayılan isim
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+}

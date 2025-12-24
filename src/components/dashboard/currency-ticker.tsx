@@ -7,9 +7,9 @@ import { CurrencyRate } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function CurrencyTicker({
-                                   initialData,
-                                   isLoading
-                               }: {
+    initialData,
+    isLoading
+}: {
     initialData: CurrencyRate[],
     isLoading: boolean
 }) {
@@ -64,9 +64,9 @@ export function CurrencyTicker({
                                 getChangeColor(rate.change)
                             )}
                         >
-              {getChangeIcon(rate.change)}
+                            {getChangeIcon(rate.change)}
                             {rate.change.toFixed(2)}%
-            </span>
+                        </span>
                     </div>
                 ))}
             </div>

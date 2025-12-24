@@ -11,20 +11,21 @@ import { AssetAllocationChart } from "@/components/dashboard/asset-allocation-ch
 import { NewsFeed } from "@/components/dashboard/news-feed";
 import { CurrencyTicker } from "@/components/dashboard/currency-ticker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getUserProfile, getDashboardFinanceData, type UserProfile, type DashboardData } from "@/lib/services/dashboardService";
-import type { CurrencyRate, NewsArticle } from "@/lib/types";
+
+import type { CurrencyRate, NewsArticle, DashboardSummary } from "@/lib/types";
+import { getUserProfile, getDashboardFinanceData, getDashboardSummary, type UserProfile, type DashboardData } from "@/lib/services/dashboardService";
 
 export default function DashboardPage() {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(true); // 👈 Ana profil yükleme durumu
-    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(true);
 
-    // --- FİNANS VERİLERİ İÇİN YENİ STATE'LER ---
+    // --- FİNANS VERİLERİ ---
     const [currencyRates, setCurrencyRates] = useState<CurrencyRate[]>([]);
     const [newsFeed, setNewsFeed] = useState<NewsArticle[]>([]);
-    const [isFinanceLoading, setIsFinanceLoading] = useState(true); // 👈 Finans yükleme durumu
-    // --- BİTİŞ ---
+    const [summary, setSummary] = useState<DashboardSummary | null>(null);
+
+    const router = useRouter();
 
     useEffect(() => {
         const checkAuthAndFetchData = async () => {
@@ -35,36 +36,35 @@ export default function DashboardPage() {
                 return;
             }
 
-            // --- 1. Paralel İstekler ---
             setIsLoading(true);
-            setIsFinanceLoading(true);
 
             try {
-                const [profileData, financeData] = await Promise.all([
-                    getUserProfile(), // Profil isteği
-                    getDashboardFinanceData() // .NET Finans isteği
+                const [profileData, financeData, summaryData] = await Promise.all([
+                    getUserProfile(),
+                    getDashboardFinanceData(),
+                    getDashboardSummary()
                 ]);
 
-                // Profil verisini ayarla
+                // Verileri ayarla
                 setProfile(profileData);
 
-                // Finans verisini ayarla
-                const data = financeData as DashboardData; // Gelen veriyi tipine cast et
-                setCurrencyRates(data.currencyRates || []);
-                setNewsFeed(data.newsFeed || []);
+                const fData = financeData as DashboardData;
+                setCurrencyRates(fData.currencyRates || []);
+                setNewsFeed(fData.newsFeed || []);
+
+                setSummary(summaryData);
 
             } catch (err: any) {
-                setError(err.message);
+                console.error("Dashboard yüklenirken hata:", err);
+                setError(err.message || "Veriler yüklenirken bir hata oluştu.");
             } finally {
                 setIsLoading(false);
-                setIsFinanceLoading(false);
             }
         };
 
         checkAuthAndFetchData();
     }, [router]);
 
-    // --- YÜKLENİYOR EKRANI ---
     if (isLoading) {
         return (
             <div className="flex h-screen w-full items-center justify-center">
@@ -73,17 +73,15 @@ export default function DashboardPage() {
         );
     }
 
-    // --- HATA EKRANI ---
     if (error) {
         return (
             <div className="flex h-screen w-full items-center justify-center text-destructive">
                 {error}
+                <br />
+                <button onClick={() => window.location.reload()} className="ml-4 underline">Yeniden Dene</button>
             </div>
         );
     }
-
-    // --- BAŞARILI DURUM (Dashboard) ---
-    const netWorth = profile ? profile.balance : 0;
 
     return (
         <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -93,64 +91,61 @@ export default function DashboardPage() {
                 </h2>
             </div>
 
-            {/* 1. Kur Bilgisi (Dinamik Veri) */}
+            {/* 1. Kur Bilgisi */}
             <CurrencyTicker
                 initialData={currencyRates}
-                isLoading={isFinanceLoading}
+                isLoading={isLoading}
             />
 
-            {/* 2. Genel Bakış Kartları (Dinamik Net Değer) */}
-            <OverviewCards netWorth={netWorth} />
+            {/* 2. Genel Bakış Kartları */}
+            <OverviewCards summary={summary} />
 
-            {/* --- YENİ YERLEŞİM: 2x2 Grid --- */}
+            {/* --- 2x2 Grid --- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
 
-                {/* KART 1: Varlık Dağılımı (Sol Üst) */}
+                {/* KART 1: Varlık Dağılımı */}
                 <Card className="h-full flex flex-col">
                     <CardHeader>
                         <CardTitle>Varlık Dağılımı</CardTitle>
                     </CardHeader>
                     <CardContent className="flex-1 flex items-center justify-center">
-                        <AssetAllocationChart />
+                        <AssetAllocationChart data={summary?.netWorthDistribution || []} />
                     </CardContent>
                 </Card>
 
-                {/* KART 2: Finans Haberleri (Sağ Üst) */}
-                {/* Kartların eşit yüksekliği için h-full ve flex-col */}
-                <Card className="h-full flex flex-col max-h-[500px]"> {/* Max yükseklik ekledik */}
+                {/* KART 2: Finans Haberleri */}
+                <Card className="h-full flex flex-col max-h-[500px]">
                     <CardHeader>
                         <CardTitle>Finans Haberleri</CardTitle>
                     </CardHeader>
-                    {/* İçeriğin taşması durumunda scroll ekliyoruz */}
                     <CardContent className="flex-1 overflow-y-auto">
                         <NewsFeed
                             initialData={newsFeed}
-                            isLoading={isFinanceLoading}
+                            isLoading={isLoading}
                         />
                     </CardContent>
                 </Card>
 
-                {/* KART 3: Son İşlemler (Sol Alt) */}
+                {/* KART 3: Son İşlemler */}
                 <Card className="h-full flex flex-col max-h-[500px]">
                     <CardHeader>
                         <CardTitle>Son İşlemler</CardTitle>
                     </CardHeader>
                     <CardContent className="flex-1 overflow-y-auto">
-                        <RecentTransactions />
+                        <RecentTransactions transactions={summary?.recentTransactions || []} />
                     </CardContent>
                 </Card>
 
-                {/* KART 4: Yaklaşan Ödemeler (Sağ Alt) */}
+                {/* KART 4: Yaklaşan Ödemeler */}
                 <Card className="h-full flex flex-col max-h-[500px]">
                     <CardHeader>
                         <CardTitle>Yaklaşan Ödemeler</CardTitle>
                     </CardHeader>
                     <CardContent className="flex-1 overflow-y-auto">
-                        <UpcomingPayments />
+                        <UpcomingPayments payments={summary?.upcomingPayments || []} />
                     </CardContent>
                 </Card>
             </div>
-            {/* --- YENİ YERLEŞİM BİTİŞİ --- */}
         </div>
     );
 }

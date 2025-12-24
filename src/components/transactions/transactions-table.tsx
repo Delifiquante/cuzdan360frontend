@@ -9,14 +9,25 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Transaction, TransactionType } from "@/lib/types"; // 👈 TransactionType import edildi
+import { Transaction, TransactionType } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontal, Edit, Trash } from "lucide-react";
 
 interface TransactionsTableProps {
     transactions: Transaction[];
+    onEdit: (transaction: Transaction) => void;
+    onDelete: (id: number) => void;
 }
 
-export function TransactionsTable({ transactions }: TransactionsTableProps) {
+export function TransactionsTable({ transactions, onEdit, onDelete }: TransactionsTableProps) {
     const formatCurrency = (value: number) =>
         new Intl.NumberFormat('tr-TR', {
             style: 'currency',
@@ -42,6 +53,7 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
                         <TableHead>Tarih</TableHead>
                         <TableHead>Kategori</TableHead>
                         <TableHead className="text-right">Tutar</TableHead>
+                        <TableHead className="w-[50px]"></TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -75,6 +87,32 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
                                 >
                                     {transaction.transactionType === TransactionType.Income ? '+' : '-'}
                                     {formatCurrency(transaction.amount)}
+                                </TableCell>
+                                <TableCell>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                                <span className="sr-only">Menü</span>
+                                                <MoreHorizontal className="h-4 w-4" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuLabel>İşlemler</DropdownMenuLabel>
+                                            <DropdownMenuItem
+                                                onClick={() => onEdit(transaction)}
+                                            >
+                                                <Edit className="mr-2 h-4 w-4" />
+                                                Düzenle
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                className="text-red-600 focus:text-red-600"
+                                                onClick={() => onDelete(transaction.transactionId)}
+                                            >
+                                                <Trash className="mr-2 h-4 w-4" />
+                                                Sil
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                 </TableCell>
                             </TableRow>
                         ))

@@ -3,9 +3,9 @@ import { Skeleton } from '@/components/ui/skeleton'; // 👈 Skeleton import edi
 import Image from 'next/image'; // 👈 Resimler için
 
 export function NewsFeed({
-                             initialData,
-                             isLoading
-                         }: {
+    initialData,
+    isLoading
+}: {
     initialData: NewsArticle[],
     isLoading: boolean
 }) {

@@ -21,6 +21,9 @@ export interface AuthResponse {
     requiresOtp?: boolean;
     message?: string;
     error?: string;
+    isEmailVerified?: boolean;
+    email?: string;
+    refreshToken?: string; // 👈 Eklendi
 }
 
 export interface ChangePasswordRequest {
@@ -172,4 +175,95 @@ export async function changePassword(data: ChangePasswordRequest): Promise<AuthR
         method: 'POST',
         body: JSON.stringify(data),
     });
+}
+
+export async function loginWithGoogle(idToken: string): Promise<AuthResponse> {
+    if (USE_MOCK) {
+        await delay(MOCK_DELAY);
+        return Promise.resolve({
+            token: 'mock-jwt-token-google-123456789',
+            message: 'Google ile giriş başarılı',
+        });
+    }
+
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/api/Auth/google-login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ idToken }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            return { error: result.error || result.message || 'Google ile giriş başarısız' };
+        }
+
+        return result;
+    } catch (error) {
+        return { error: 'Sunucuya bağlanılamadı.' };
+    }
+}
+
+
+// ==================== TOTP 2FA Functions ====================
+
+export interface TotpSetupResponse {
+    secret: string;
+    qrCodeImage: string;
+}
+
+export async function enableTotp(): Promise<TotpSetupResponse> {
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const response = await fetch(`${apiBaseUrl}/api/Auth/totp/enable`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}` // Basit token alma, daha iyisi fetchAuth kullanmak ama burada fetchAuth import edilmiş zaten
+        }
+    });
+
+    // fetchAuth kullanmak daha doğru olurdu, yukarıdaki import fetchAuth'u getiriyor.
+    // Ancak enableTotp içinde fetchAuth kullanırsak daha temiz olur.
+
+    // DÜZELTME: fetchAuth kullanarak tekrar yazıyorum
+    return fetchAuth('/api/Auth/totp/enable', { method: 'POST' });
+}
+
+export async function verifyAndActivateTotp(code: string): Promise<{ message: string }> {
+    return fetchAuth('/api/Auth/totp/verify-and-activate', {
+        method: 'POST',
+        body: JSON.stringify({ code })
+    });
+}
+
+export async function disableTotp(): Promise<{ message: string }> {
+    return fetchAuth('/api/Auth/totp/disable', { method: 'POST' });
+}
+
+export async function verifyMfa(email: string, otp: string): Promise<AuthResponse> {
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    try {
+        const response = await fetch(`${apiBaseUrl}/api/Auth/verify-mfa`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, otp }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            return { error: result.error || result.message || 'Doğrulama başarısız' };
+        }
+
+        return result;
+    } catch (error) {
+        return { error: 'Sunucuya bağlanılamadı.' };
+    }
 }

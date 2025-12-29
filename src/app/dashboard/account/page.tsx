@@ -135,6 +135,7 @@ export default function AccountPage() {
                     <SecurityDialog
                         isOpen={isSecurityDialogOpen}
                         onClose={() => setIsSecurityDialogOpen(false)}
+                        initialData={profile}
                     />
 
                     {/* Notification Dialog */}

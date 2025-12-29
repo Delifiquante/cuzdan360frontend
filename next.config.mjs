@@ -31,6 +31,18 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'im.haberturk.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.ntv.com.tr',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };

@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { usePathname } from 'next/navigation';
 import { MainNavbar } from '@/components/layout/main-navbar';
 import { ThemeProvider } from '@/components/providers/theme-provider';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 export default function RootLayout({
   children,
@@ -19,6 +20,8 @@ export default function RootLayout({
   if (typeof document !== 'undefined') {
     document.title = 'Cüzdan360';
   }
+
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 
   return (
     <html lang="tr" suppressHydrationWarning>
@@ -35,16 +38,19 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased bg-background">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <main>{children}</main>
-          <Toaster />
-        </ThemeProvider>
+        <GoogleOAuthProvider clientId={googleClientId}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <main>{children}</main>
+            <Toaster />
+          </ThemeProvider>
+        </GoogleOAuthProvider>
       </body>
     </html>
   );
 }
+

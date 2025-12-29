@@ -10,6 +10,8 @@ export interface UserProfile {
     username: string;
     email: string;
     balance: number;
+    pendingEmail?: string;
+    isOtpEnabled?: boolean;
     // Add other properties as needed
 }
 

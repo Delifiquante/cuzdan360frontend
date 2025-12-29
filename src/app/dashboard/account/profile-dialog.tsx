@@ -47,6 +47,10 @@ export function ProfileDialog({ isOpen, onClose, initialData }: ProfileDialogPro
 
     const handleSave = async () => {
         setIsLoading(true);
+
+        // Email değişikliği kontrolü
+        const emailChanged = initialData && formData.email !== initialData.email;
+
         try {
             const res = await updateProfile({
                 username: formData.username,
@@ -60,10 +64,18 @@ export function ProfileDialog({ isOpen, onClose, initialData }: ProfileDialogPro
                     description: res.error || "Profil güncellenemedi.",
                 });
             } else {
-                toast({
-                    title: "Başarılı",
-                    description: res.message || "Profil bilgileri güncellendi.",
-                });
+                // Email değiştiyse özel mesaj göster
+                if (emailChanged) {
+                    toast({
+                        title: "E-posta Değişikliği",
+                        description: "Yeni e-posta adresinize doğrulama linki gönderildi. Lütfen gelen kutunuzu kontrol edin.",
+                    });
+                } else {
+                    toast({
+                        title: "Başarılı",
+                        description: res.message || "Profil bilgileri güncellendi.",
+                    });
+                }
                 onClose();
             }
         } catch (error) {
@@ -77,6 +89,9 @@ export function ProfileDialog({ isOpen, onClose, initialData }: ProfileDialogPro
         }
     };
 
+
+
+
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[425px]">
@@ -86,6 +101,19 @@ export function ProfileDialog({ isOpen, onClose, initialData }: ProfileDialogPro
                         Hesap bilgilerinizi buradan güncelleyebilirsiniz. Değişiklikleri kaydetmeyi unutmayın.
                     </DialogDescription>
                 </DialogHeader>
+
+                {/* Bekleyen email bannerı */}
+                {initialData?.pendingEmail && (
+                    <div className="mx-6 mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                        <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                            <strong>Bekleyen E-posta:</strong> {initialData.pendingEmail}
+                        </p>
+                        <p className="text-xs text-yellow-600 dark:text-yellow-300 mt-1">
+                            Doğrulama linki için e-posta kutunuzu kontrol edin.
+                        </p>
+                    </div>
+                )}
+
                 <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="username" className="text-right">

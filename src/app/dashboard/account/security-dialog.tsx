@@ -8,15 +8,18 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
-import { changePassword } from '@/lib/services/authService';
+import { changePassword, disableTotp } from '@/lib/services/authService';
 import { useToast } from "@/hooks/use-toast";
+import { UserProfile } from '@/lib/services/dashboardService';
+import { TotpSetupDialog } from "@/components/ui/totp-setup-dialog";
 
 interface SecurityDialogProps {
     isOpen: boolean;
     onClose: () => void;
+    initialData: UserProfile | null;
 }
 
-export function SecurityDialog({ isOpen, onClose }: SecurityDialogProps) {
+export function SecurityDialog({ isOpen, onClose, initialData }: SecurityDialogProps) {
     const [passwordData, setPasswordData] = useState({
         currentPassword: '',
         newPassword: '',
@@ -27,9 +30,16 @@ export function SecurityDialog({ isOpen, onClose }: SecurityDialogProps) {
         new: false,
         confirm: false,
     });
-    const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [passwordError, setPasswordError] = useState('');
+    const [isTotpOpen, setIsTotpOpen] = useState(false);
+    const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+
+    React.useEffect(() => {
+        if (initialData) {
+            setTwoFactorEnabled(initialData.isOtpEnabled || false);
+        }
+    }, [initialData]);
 
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -97,25 +107,41 @@ export function SecurityDialog({ isOpen, onClose }: SecurityDialogProps) {
         }
     };
 
-    const handleToggle2FA = async (enabled: boolean) => {
-        setTwoFactorEnabled(enabled);
-        setIsLoading(true);
-
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        console.log('2FA toggled:', enabled);
-        setIsLoading(false);
-
-        if (enabled) {
-            alert('İki faktörlü kimlik doğrulama etkinleştirildi!');
+    const handleToggle2FA = async (enable: boolean) => {
+        if (enable) {
+            // Açmak istiyorsa direkt dialogu aç
+            setIsTotpOpen(true);
         } else {
-            alert('İki faktörlü kimlik doğrulama devre dışı bırakıldı.');
+            // Kapatmak istiyorsa onay al ve servisi çağır
+            if (!confirm("2FA'yı devre dışı bırakmak istediğinize emin misiniz?")) return;
+
+            setIsLoading(true);
+            try {
+                await disableTotp();
+                setTwoFactorEnabled(false);
+                toast({
+                    title: "Başarılı",
+                    description: "İki faktörlü kimlik doğrulama devre dışı bırakıldı.",
+                });
+            } catch (error: any) {
+                toast({
+                    variant: "destructive",
+                    title: "Hata",
+                    description: error.message || "İşlem başarısız.",
+                });
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
+            <TotpSetupDialog
+                isOpen={isTotpOpen}
+                onClose={() => setIsTotpOpen(false)}
+                onSuccess={() => setTwoFactorEnabled(true)}
+            />
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                     <DialogTitle>Güvenlik Ayarları</DialogTitle>

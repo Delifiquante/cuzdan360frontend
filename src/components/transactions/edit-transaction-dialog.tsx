@@ -189,11 +189,13 @@ export function EditTransactionDialog({
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {categories.map((c) => (
-                                                <SelectItem key={c.categoryId} value={c.categoryId.toString()}>
-                                                    {c.name}
-                                                </SelectItem>
-                                            ))}
+                                            {categories
+                                                .filter(c => c.transactionType === Number(form.watch("transactionType")))
+                                                .map((c) => (
+                                                    <SelectItem key={c.categoryId} value={c.categoryId.toString()}>
+                                                        {c.name}
+                                                    </SelectItem>
+                                                ))}
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />

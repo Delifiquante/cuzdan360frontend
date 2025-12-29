@@ -6,6 +6,7 @@ export enum TransactionType {
 export interface Category {
     categoryId: number;
     name: string;
+    transactionType: number; // 0=Income, 1=Expense
 }
 
 export interface Source {

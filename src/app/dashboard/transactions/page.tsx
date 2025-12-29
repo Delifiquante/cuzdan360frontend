@@ -396,11 +396,13 @@ export default function TransactionsPage() {
                                                                 </SelectTrigger>
                                                             </FormControl>
                                                             <SelectContent>
-                                                                {categories.map((cat) => (
-                                                                    <SelectItem key={cat.categoryId} value={cat.categoryId.toString()}>
-                                                                        {cat.name}
-                                                                    </SelectItem>
-                                                                ))}
+                                                                {categories
+                                                                    .filter(cat => cat.transactionType === Number(form.watch("transactionType")))
+                                                                    .map((cat) => (
+                                                                        <SelectItem key={cat.categoryId} value={cat.categoryId.toString()}>
+                                                                            {cat.name}
+                                                                        </SelectItem>
+                                                                    ))}
                                                             </SelectContent>
                                                         </Select>
                                                         <FormMessage />

@@ -91,9 +91,9 @@ function DockItem({
       {Children.map(children, (child) =>
         React.isValidElement(child)
           ? cloneElement(
-              child as React.ReactElement<{ isHovered?: MotionValue<number> }>,
-              { isHovered }
-            )
+            child as React.ReactElement<{ isHovered?: MotionValue<number> }>,
+            { isHovered }
+          )
           : child
       )}
     </motion.div>
@@ -125,7 +125,7 @@ function DockLabel({ children, className = "", isHovered }: DockLabelProps) {
           animate={{ opacity: 1, x: 10 }}
           exit={{ opacity: 0, x: 0 }}
           transition={{ duration: 0.2 }}
-          className={`${className} absolute left-full ml-2 w-fit whitespace-pre rounded-md border border-border bg-card px-2 py-0.5 text-xs text-white`}
+          className={`${className} absolute left-full ml-2 w-fit whitespace-pre rounded-md border border-border bg-popover px-2 py-0.5 text-xs text-black dark:text-white shadow-md z-[9999]`}
           role="tooltip"
         >
           {children}

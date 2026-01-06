@@ -6,7 +6,10 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { netWorthHistory as chartData } from "@/lib/data";
+
+interface NetWorthChartProps {
+  data: { date: string; netWorth: number }[];
+}
 
 const chartConfig = {
   netWorth: {
@@ -15,13 +18,13 @@ const chartConfig = {
   },
 };
 
-export function NetWorthChart() {
+export function NetWorthChart({ data }: NetWorthChartProps) {
   return (
-    <div className="h-[400px] w-full">
+    <div className="h-full w-full">
       <ChartContainer config={chartConfig} className="h-full w-full">
         <AreaChart
           accessibilityLayer
-          data={chartData}
+          data={data}
           margin={{
             left: 12,
             right: 12,

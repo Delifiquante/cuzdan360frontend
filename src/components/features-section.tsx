@@ -74,12 +74,12 @@ export function FeaturesSection() {
 
                 {/* Özellik Kartları - 6 adet */}
                 <div className="relative">
-                    <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                        {features.map((feature, index) => (
+                    <div className="flex flex-wrap justify-center gap-8">
+                        {features.map((feature, index: number) => (
                             <div
                                 key={index}
                                 className={cn(
-                                    "relative h-full overflow-hidden rounded-2xl border",
+                                    "relative h-full overflow-hidden rounded-2xl border w-full md:w-[calc(50%-2rem)] lg:w-[calc(33.33%-2rem)]",
                                     "border-border/50 bg-card/80 p-8 shadow-xl backdrop-blur-sm"
                                 )}
                             >

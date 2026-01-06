@@ -71,7 +71,7 @@ export default function AccountPage() {
         },
         {
             title: "Görünüm ve Tema",
-            description: "Uygulama temasını (koyu/açık) ve renk paletini özelleştirin.",
+            description: "Uygulama temasını (koyu/açık) özelleştirin.",
             icon: <Paintbrush className="w-6 h-6 text-primary" />,
             action: () => setIsAppearanceDialogOpen(true),
         },

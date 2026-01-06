@@ -1,29 +1,44 @@
 // Dosya Yolu: src/components/hero-section.tsx
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 import Silk from "@/components/Silk";
-import BlurText from "@/components/ui/blur-text"; // Yeni eklenen bileşen
-import { HoverBorderGradient } from "@/components/ui/hover-border-gradient"; // Projenizde zaten var
-import { cn } from "@/lib/utils"; // Projenizde zaten var
+import BlurText from "@/components/ui/blur-text";
+import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
+import { cn } from "@/lib/utils";
+import { ChevronDown } from "lucide-react";
 
 export function HeroSection() {
+    const { theme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Varsayılan (server-side) veya dark mode rengi: #528435
+    // Light mode rengi: Limoni yeşil (#84cc16 - Lime 500)
+    const silkColor = mounted && theme === 'light' ? '#84cc16' : '#528435';
+    // Overlay: Light modda daha şeffaf/aydınlık, Dark modda karartılmış
+    const overlayClass = mounted && theme === 'light' ? 'bg-white/10' : 'bg-black/50';
+
     return (
         <section
             id="home"
-            className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-background"
+            className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-background theme-transition"
         >
             {/* 1. Arka Plan: Silk Bileşeni */}
             <div className="absolute inset-0 z-0">
                 <Silk
                     speed={5}
                     scale={1}
-                    color="#528435"
+                    color={silkColor}
                     noiseIntensity={1.5}
                     rotation={0}
                 />
-                {/* Silk üzerine koyu bir katman ekleyerek metnin okunabilirliğini artırın */}
-                <div className="absolute inset-0 z-1 bg-black/50"></div>
+                {/* Silk üzerine katman */}
+                <div className={cn("absolute inset-0 z-1 transition-colors duration-500", overlayClass)}></div>
             </div>
 
             {/* 2. Ön Plan: Preditech'ten ilham alan içerik */}
@@ -42,17 +57,17 @@ export function HeroSection() {
                         delay={150}
                         animateBy="words"
                         direction="top"
-                        className="relative max-w-4xl text-left text-4xl font-bold text-brand sm:text-5xl lg:text-7xl" // cuzdan360'ın marka rengini (brand) kullan
+                        className="relative max-w-4xl text-left text-4xl font-bold text-brand sm:text-5xl lg:text-7xl [-webkit-text-stroke:1px_black]"
                     />
                 </div>
 
                 {/* Sağ Taraf: Açıklama ve Butonlar */}
                 <div className="flex flex-col items-start justify-center space-y-4">
-                    <p className="relative text-left text-lg text-neutral-300 sm:text-xl md:text-2xl">
+                    <p className="relative text-left text-lg text-neutral-100 dark:text-neutral-300 sm:text-xl md:text-2xl font-medium">
                         Cüzdan360, tüm varlıklarınızı, borçlarınızı ve harcamalarınızı tek
                         bir yerde birleştirir.
                     </p>
-                    <p className="relative max-w-xl text-left text-lg text-neutral-300 sm:text-xl md:text-2xl">
+                    <p className="relative max-w-xl text-left text-lg text-neutral-100 dark:text-neutral-300 sm:text-xl md:text-2xl font-medium">
                         Yapay zeka destekli analizlerle finansal hedeflerinize ulaşın.
                     </p>
                     <div className="flex flex-col items-start space-y-4 pt-4 md:flex-row md:space-y-0 md:space-x-4">
@@ -74,6 +89,11 @@ export function HeroSection() {
                         </HoverBorderGradient>
                     </div>
                 </div>
+            </div>
+
+            {/* Scroll Indicator */}
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 animate-bounce cursor-pointer opacity-80 hover:opacity-100 transition-opacity" onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}>
+                <ChevronDown className="h-10 w-10 text-neutral-900 dark:text-white" />
             </div>
         </section>
     );

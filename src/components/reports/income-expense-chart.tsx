@@ -6,7 +6,10 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
-import { incomeVsExpenses as chartData } from "@/lib/data";
+
+interface IncomeExpenseChartProps {
+    data: { month: string; income: number; expenses: number }[];
+}
 
 const chartConfig = {
     income: {
@@ -19,13 +22,13 @@ const chartConfig = {
     },
 };
 
-export function IncomeExpenseChart() {
+export function IncomeExpenseChart({ data }: IncomeExpenseChartProps) {
     return (
-        <div className="h-[280px] w-full">
+        <div className="h-full w-full">
             <ChartContainer config={chartConfig} className="h-full w-full">
                 <BarChart
                     accessibilityLayer
-                    data={chartData}
+                    data={data}
                     margin={{
                         left: 12,
                         right: 12,

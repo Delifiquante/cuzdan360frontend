@@ -6,7 +6,10 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
-import { monthlySavings as chartData } from "@/lib/data";
+
+interface SavingsTrendChartProps {
+    data: { month: string; savings: number }[];
+}
 
 const chartConfig = {
     savings: {
@@ -15,13 +18,13 @@ const chartConfig = {
     },
 };
 
-export function SavingsTrendChart() {
+export function SavingsTrendChart({ data }: SavingsTrendChartProps) {
     return (
-        <div className="h-[280px] w-full">
+        <div className="h-full w-full">
             <ChartContainer config={chartConfig} className="h-full w-full">
                 <LineChart
                     accessibilityLayer
-                    data={chartData}
+                    data={data}
                     margin={{
                         left: 12,
                         right: 12,

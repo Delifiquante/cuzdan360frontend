@@ -2,7 +2,7 @@
 
 /* eslint-disable react/no-unknown-property */
 import type React from "react"
-import { forwardRef, useMemo, useRef, useLayoutEffect } from "react"
+import { forwardRef, useMemo, useRef, useLayoutEffect, useEffect } from "react"
 import { Canvas, useFrame, useThree, type RootState } from "@react-three/fiber"
 import { Color, type Mesh, type ShaderMaterial } from "three"
 import type { IUniform } from "three"
@@ -141,8 +141,16 @@ const Silk: React.FC<SilkProps> = ({ speed = 5, scale = 1, color = "#7B7481", no
       uRotation: { value: rotation },
       uTime: { value: 0 },
     }),
-    [speed, scale, noiseIntensity, color, rotation],
+    [],
   )
+
+  useEffect(() => {
+    uniforms.uSpeed.value = speed
+    uniforms.uScale.value = scale
+    uniforms.uNoiseIntensity.value = noiseIntensity
+    uniforms.uColor.value.set(...hexToNormalizedRGB(color))
+    uniforms.uRotation.value = rotation
+  }, [speed, scale, noiseIntensity, color, rotation, uniforms])
 
   return (
     <Canvas dpr={[1, 2]} frameloop="always">

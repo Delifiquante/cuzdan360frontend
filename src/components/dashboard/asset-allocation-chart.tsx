@@ -10,11 +10,15 @@ import {
 } from "@/components/ui/chart";
 import type { ChartDataPoint } from "@/lib/types";
 
+import { useRouter } from "next/navigation";
+
 interface AssetAllocationChartProps {
     data: ChartDataPoint[];
 }
 
 export function AssetAllocationChart({ data }: AssetAllocationChartProps) {
+    const router = useRouter();
+
     // Generate colors dynamically if not present, or use css vars
     const chartData = data?.map((d, index) => ({
         ...d,
@@ -35,9 +39,10 @@ export function AssetAllocationChart({ data }: AssetAllocationChartProps) {
     return (
         <ChartContainer
             config={chartConfig}
-            className="h-[350px] w-full"
+            className="h-[350px] w-full cursor-pointer hover:opacity-90 transition-all duration-200 hover:scale-[1.01]"
+            onClick={() => router.push('/dashboard/reports')}
         >
-            <PieChart>
+            <PieChart className="cursor-pointer">
                 <ChartTooltip
                     cursor={false}
                     content={<ChartTooltipContent hideLabel />}
@@ -48,9 +53,10 @@ export function AssetAllocationChart({ data }: AssetAllocationChartProps) {
                     nameKey="label"
                     innerRadius={50}
                     strokeWidth={5}
+                    className="cursor-pointer"
                 >
                     {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                        <Cell key={`cell-${index}`} fill={entry.fill} className="cursor-pointer hover:opacity-80" />
                     ))}
                 </Pie>
             </PieChart>

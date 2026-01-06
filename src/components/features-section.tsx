@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import {
     AreaChart,
     ArrowLeftRight,
-    CandlestickChart,
+
     FileText,
     Landmark, // Yeni eklenen ikon
     LayoutDashboard,
@@ -29,12 +29,7 @@ const features = [
             "Hisse senetleri, ETF'ler ve kripto varlıklarınızın performansını anlık olarak izleyin.",
         icon: <AreaChart className="h-8 w-8 text-brand" />,
     },
-    {
-        title: "AI Destekli Döviz Analizi",
-        description:
-            "Yapay zeka ile piyasa verilerini ve finansal haberleri analiz ederek döviz fırsatları hakkında öneriler alın.",
-        icon: <CandlestickChart className="h-8 w-8 text-brand" />,
-    },
+
     {
         title: "Detaylı Raporlama",
         description:

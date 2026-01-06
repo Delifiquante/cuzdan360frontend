@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import {
   AreaChart,
   ArrowLeftRight,
-  CandlestickChart,
+
   FileText,
   Landmark,
   LayoutDashboard,
@@ -28,7 +28,7 @@ export function AppDock() {
     },
     {
       onClick: () => router.push('/dashboard/investments'),
-      label: 'Yatırımlar',
+      label: 'Varlıklarım',
       icon: <AreaChart className="text-primary" />,
     },
     {
@@ -41,11 +41,7 @@ export function AppDock() {
       label: 'Raporlar',
       icon: <FileText className="text-primary" />,
     },
-    {
-      onClick: () => router.push('/dashboard/exchange-rates'),
-      label: 'AI Döviz Analizi',
-      icon: <CandlestickChart className="text-primary" />,
-    },
+
     {
       onClick: () => router.push('/dashboard/account'),
       label: 'Hesap',
